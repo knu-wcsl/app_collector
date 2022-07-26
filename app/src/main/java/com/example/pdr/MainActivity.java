@@ -5,15 +5,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.preference.PreferenceManager;
 
-import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,10 +18,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.io.File;
 import java.util.ArrayList;
-import java.util.prefs.PreferenceChangeEvent;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
@@ -66,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
     private int max_n_log = 10;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         sensorModule = new SensorModule(this);
 
 
-        // Button
+        // Button 1 (start/stop scan)
         btn = (Button) findViewById(R.id.btn);
         btn.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -108,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Button 2 (reserved for future function)
+        // Button 2 (add timestamp to the file)
         btn2 = (Button) findViewById(R.id.btn2);
         btn2.setOnClickListener(new View.OnClickListener(){
             @Override

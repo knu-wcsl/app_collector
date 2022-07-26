@@ -18,7 +18,7 @@
         <ListPreference
             app:key="option_wifi_source"
             app:dependency="option_wifi_enable"
-            app:defaultValue="rtt"
+            app:defaultValue="rss"
             app:entries="@array/wifi_source"
             app:entryValues="@array/wifi_source_value"
             app:title="Collect Data Type"
@@ -34,20 +34,4 @@
             app:useSimpleSummaryProvider="true" />
 
     </PreferenceCategory>
-
-<!--    <PreferenceCategory app:title="Display options">-->
-
-<!--        <SwitchPreferenceCompat-->
-<!--            app:key="sync"-->
-<!--            app:title="@string/sync_title" />-->
-
-<!--        <SwitchPreferenceCompat-->
-<!--            app:dependency="sync"-->
-<!--            app:key="attachment"-->
-<!--            app:summaryOff="@string/attachment_summary_off"-->
-<!--            app:summaryOn="@string/attachment_summary_on"-->
-<!--            app:title="@string/attachment_title" />-->
-
-<!--    </PreferenceCategory>-->
-
 </PreferenceScreen>

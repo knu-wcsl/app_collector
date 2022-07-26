@@ -31,12 +31,10 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 import static android.content.Context.WIFI_RTT_RANGING_SERVICE;
-import static android.os.Process.THREAD_PRIORITY_DISPLAY;
 import static android.os.SystemClock.elapsedRealtime;
 
 public class WifiModule {
