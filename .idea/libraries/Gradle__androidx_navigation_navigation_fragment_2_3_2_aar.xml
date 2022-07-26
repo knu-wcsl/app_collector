@@ -1,0 +1,16 @@
+<component name="libraryTable">
+  <library name="Gradle: androidx.navigation:navigation-fragment:2.3.2@aar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/cc9d06f16537c597a7080329d5c312e8/transformed/navigation-fragment-2.3.2/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/cc9d06f16537c597a7080329d5c312e8/transformed/navigation-fragment-2.3.2/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/cc9d06f16537c597a7080329d5c312e8/transformed/navigation-fragment-2.3.2/AndroidManifest.xml" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-3/3071d00945034c570007e2fa303da699/transformed/navigation-fragment-2.3.2/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/3071d00945034c570007e2fa303da699/transformed/navigation-fragment-2.3.2/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-3/3071d00945034c570007e2fa303da699/transformed/navigation-fragment-2.3.2/AndroidManifest.xml" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/androidx.navigation/navigation-fragment/2.3.2/3622ca880ed637740e391a55d7cd5d0869285d29/navigation-fragment-2.3.2-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

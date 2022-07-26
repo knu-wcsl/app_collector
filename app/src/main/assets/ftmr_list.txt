@@ -1,0 +1,17 @@
+## FTMR list 
+## GroupID,  AP name,  mac address,  frequency
+maxwell, maxwell_testbed_1_5G, 3C:7C:3F:0C:B3:1C, 5240
+maxwell, maxwell_testbed_2_5G, 24:4B:FE:64:AE:9C, 5240
+maxwell, maxwell_testbed_3_5G, 3C:7C:3F:0C:DE:54, 5240
+## maxwell, maxwell_testbed_4_5G, 24:4B:FE:64:B0:0C, 5240
+## maxwell, maxwell_testbed_5_5G, 24:4B:FE:64:B1:54, 5240
+## maxwell, maxwell_testbed_6_5G, 24:4B:FE:64:B0:14, 5240
+## jstest, EA6350_2, 60:38:e0:84:57:cc, 2462
+## jstest, google_2, 28:bd:89:c3:01:83, 2462
+jstest, Asus13, 88:D7:F6:04:59:44, 5240
+jstest, WILD, DC:8B:28:55:07:71, 5240
+jstest, EA6350, 60:38:e0:84:57:cd, 5180
+jstest, google, 28:bd:89:c3:01:7f, 5180
+jstest, orbi, 8c:3b:ad:2c:92:e3, 5240
+#jstest, orbi, 8c:3b:ad:2c:92:e2, 5785
+
