@@ -1,12 +1,9 @@
-package com.example.pdr;
+package icsl.apps.collector;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -23,13 +20,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
-import androidx.preference.PreferenceManager;
 
-import java.security.Provider;
-import java.util.ArrayList;
-
-import static android.content.Context.LOCATION_SERVICE;
-import static android.content.Context.SENSOR_SERVICE;
 import static android.os.SystemClock.elapsedRealtime;
 
 public class SensorModule extends Service implements SensorEventListener, LocationListener {
@@ -86,7 +77,7 @@ public class SensorModule extends Service implements SensorEventListener, Locati
     private FileModule file;
 
     // Report result
-    private final float sensor_report_interval_s = 0.1f;
+    private final float sensor_report_interval_s = 0.15f;
     private float last_sensor_report_time_s;
     private Activity mActivity;
 
@@ -248,12 +239,6 @@ public class SensorModule extends Service implements SensorEventListener, Locati
         float elapsed_app_time_s = (float) (elapsedRealtime() / 1e3 - measurement_start_time_ms / 1e3);      // Elapsed time computed using Android OS
         float elapsed_sensor_fw_time_s = (float) (event.timestamp / 1e9 - measurement_start_time_ms / 1e3);  // Elapsed time computed using Sensor Firmware
 
-        if ((elapsed_app_time_s - last_sensor_report_time_s) >= sensor_report_interval_s) {
-            // Periodically update measurement status
-            last_sensor_report_time_s = sensor_report_interval_s;
-            report_sensor_measurement_status();
-        }
-
         if (!flag_is_sensor_running)
             return;
 
@@ -305,6 +290,8 @@ public class SensorModule extends Service implements SensorEventListener, Locati
             count[5]++;
             file.save_str_to_file(String.format("PRES, %f, %f, %f\n", elapsed_app_time_s, elapsed_sensor_fw_time_s, pres));
         }
+
+        report_sensor_measurement_status();
     }
 
 
@@ -320,12 +307,6 @@ public class SensorModule extends Service implements SensorEventListener, Locati
         count_gps += 1;
         float elapsed_app_time_s = (float) (elapsedRealtime() / 1e3 - measurement_start_time_ms / 1e3);      // Elapsed time computed using Android OS
         float elapsed_fw_time_s = (float) (location.getElapsedRealtimeNanos() / 1e9 - measurement_start_time_ms / 1e3);
-
-        if ((elapsed_app_time_s - last_sensor_report_time_s) >= sensor_report_interval_s) {
-            // Periodically update measurement status
-            last_sensor_report_time_s = sensor_report_interval_s;
-            report_sensor_measurement_status();
-        }
 
         double latitude = location.getLatitude();
         double longitude = location.getLongitude();
@@ -346,10 +327,17 @@ public class SensorModule extends Service implements SensorEventListener, Locati
         // GPS
         if (flag_is_sensor_running)
             file.save_str_to_file(String.format("GPS, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f\n", elapsed_app_time_s, elapsed_fw_time_s, latitude, longitude, altitude, bearing, speed, accuracy, verticalAccuracy, bearingAccuracy, speedAccuracy));
+
+        report_sensor_measurement_status();
     }
 
 
     private void report_sensor_measurement_status() {
+        float elapsed_app_time_s = (float) (elapsedRealtime() / 1e3 - measurement_start_time_ms / 1e3);
+        if ((elapsed_app_time_s - last_sensor_report_time_s) < sensor_report_interval_s)
+            return;
+
+        last_sensor_report_time_s = elapsed_app_time_s;
         String sensor_str = String.format("Sampling rate: %.2f Hz, Step counter: %d\n", 1.0f / actual_sampling_interval_s, (int) step_counter);
         sensor_str += String.format("    Azimuth: %d deg, Pitch: %d deg, Roll: %d deg\n", (int)(orientation_angle[0] * 180. / PI), (int)(orientation_angle[1] * 180. / PI), (int)(orientation_angle[2] * 180. / PI));
         for (int k = 0; k < n_sensor; k++) {

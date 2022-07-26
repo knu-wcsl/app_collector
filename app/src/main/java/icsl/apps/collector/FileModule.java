@@ -1,10 +1,7 @@
-package com.example.pdr;
+package icsl.apps.collector;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.Build;
-import android.os.Environment;
-import android.util.Log;
 import android.widget.Toast;
 
 import java.io.File;

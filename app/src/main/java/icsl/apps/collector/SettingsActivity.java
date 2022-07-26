@@ -1,10 +1,12 @@
-package com.example.pdr;
+package icsl.apps.collector;
 
 import android.os.Bundle;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NavUtils;
 import androidx.preference.PreferenceFragmentCompat;
+
+import icsl.apps.collector.R;
 
 public class SettingsActivity extends AppCompatActivity {
 

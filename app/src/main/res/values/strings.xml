@@ -1,6 +1,5 @@
 <resources>
-    <string name="app_name">pdr</string>
-    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="app_name">Collector</string>
     <string name="ftmr_filename">ftmr_list.txt</string>
 
     <!-- Preference Titles -->

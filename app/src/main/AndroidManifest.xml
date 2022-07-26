@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.pdr">
+    package="icsl.apps.collector">
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -15,27 +15,27 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Pdr">
         <activity
-            android:name=".SensorActivity"
+            android:name="icsl.apps.collector.SensorActivity"
             android:label="Sensor">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity"/>
+                android:value="icsl.apps.collector.MainActivity"/>
         </activity>
         <activity
-            android:name=".WifiActivity"
+            android:name="icsl.apps.collector.WifiActivity"
             android:label="WiFi">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value="icsl.apps.collector.MainActivity" />
         </activity>
         <activity
-            android:name=".SettingsActivity"
+            android:name="icsl.apps.collector.SettingsActivity"
             android:label="Settings">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
+                android:value="icsl.apps.collector.MainActivity" />
         </activity>
-        <activity android:name=".MainActivity">
+        <activity android:name="icsl.apps.collector.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -5,7 +5,7 @@
     android:id="@+id/scroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".WifiActivity">
+    tools:context="icsl.apps.collector.WifiActivity">
 
     <Button
         android:id="@+id/btn"

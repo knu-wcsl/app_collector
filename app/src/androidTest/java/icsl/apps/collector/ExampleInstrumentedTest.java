@@ -1,4 +1,4 @@
-package com.example.pdr;
+package icsl.apps.collector;
 
 import android.content.Context;
 

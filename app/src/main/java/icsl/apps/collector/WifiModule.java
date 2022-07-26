@@ -1,4 +1,4 @@
-package com.example.pdr;
+package icsl.apps.collector;
 
 import android.Manifest;
 import android.app.Activity;
@@ -17,16 +17,12 @@ import android.net.wifi.rtt.WifiRttManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Looper;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;

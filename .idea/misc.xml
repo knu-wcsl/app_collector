@@ -4,9 +4,8 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Sync/AndroidStudioProjects/pdr/app/src/main/res/layout/activity_sensor.xml" value="0.17249240121580547" />
-        <entry key="..\:/Sync/AndroidStudioProjects/pdr/app/src/main/res/layout/activity_setting.xml" value="0.13768115942028986" />
         <entry key="..\:/Sync/AndroidStudioProjects/pdr/app/src/main/res/layout/settings_activity.xml" value="0.17249240121580547" />
-        <entry key="..\:/Sync/AndroidStudioProjects/pdr/app/src/main/res/xml/root_preferences.xml" value="0.1" />
+        <entry key="..\:/Users/Jeongsik/AndroidStudioProjects/data_collector/app/src/main/res/layout/activity_setting.xml" value="0.1" />
       </map>
     </option>
   </component>

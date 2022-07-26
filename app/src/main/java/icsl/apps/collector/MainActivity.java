@@ -1,4 +1,4 @@
-package com.example.pdr;
+package icsl.apps.collector;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,6 +18,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import java.util.ArrayList;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
@@ -27,6 +28,8 @@ import static android.Manifest.permission.CHANGE_WIFI_STATE;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.os.SystemClock.elapsedRealtime;
+
+import icsl.apps.collector.R;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -42,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private WifiModule wifiModule;
     private FileModule file;
 
-    // Measuremet settings
+    // Measurement settings
     private boolean is_enable_gps = true;
     private boolean is_enable_wifi = true;
     private boolean is_enable_rss = true;
@@ -58,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
     private Button btn, btn2;
     private ArrayList<String> log_str_set;
     private int max_n_log = 10;
+
 
 
     @Override
@@ -89,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
         sensorModule = new SensorModule(this);
 
 
-        // Button 1 (start/stop scan)
+        // Button
         btn = (Button) findViewById(R.id.btn);
         btn.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -101,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Button 2 (add timestamp to the file)
+        // Button 2 (reserved for future function)
         btn2 = (Button) findViewById(R.id.btn2);
         btn2.setOnClickListener(new View.OnClickListener(){
             @Override

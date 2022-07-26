@@ -1,4 +1,4 @@
-package com.example.pdr;
+package icsl.apps.collector;
 
 import org.junit.Test;
 
