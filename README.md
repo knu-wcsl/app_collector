@@ -1,16 +1,20 @@
-## Android application 'Collector'
+## Android application COLLECTOR
 
-This application allows us to capture Wi-Fi signal and various types of sensor readings using an Android device.
+This is an Android studio project designing an application to collect Wi-Fi signal and various types of sensor readings.
+At this moment, the application collects the following data, which are necessary for our study. 
+- Sensor readings (accelerometer, gyroscope, magnetometer, rotation vector, game rotation vector, barometer)
+- Wi-Fi measurement (received signal strength, round trip time)
 
 
 ## Installation
-1. Clone this repo and open it from Android studio
-2. The application can be executed by clicking run button
+1. Open this repo from Android studio
+2. Install apk to Android devices 
 
 
 ## Data collection
-If you click the start button, the application collects data from various components in the device. This process continues until the stop button is clicked.
-The measurement data will be stored in a single file which name is formated as 'sensor_[device name]\_[date]\_[time].txt'
+Data collection is initiated if the start button is clicked.
+All the measurement data will be store in a single file, which name is 'sensor_[device]\_[date]\_[time].txt'
+Use matlab function to parse each type of data.
 
 
 ## Contact
