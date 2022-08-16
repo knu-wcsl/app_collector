@@ -3,35 +3,84 @@
     <PreferenceCategory app:title="Sensor">
 
         <SwitchPreferenceCompat
-            app:key="option_gps_enable"
-            app:title="Collect GPS Data"
-            app:defaultValue="true"/>
+            app:defaultValue="true"
+            app:key="option_collect_sensor"
+            app:title="Collect Sensor Data"/>
+
+        <ListPreference
+            app:defaultValue="10"
+            app:key="option_sensor_interval"
+            app:dependency="option_collect_sensor"
+            app:entries="@array/sensor_interval"
+            app:entryValues="@array/sensor_interval_val"
+            app:title="Motion Sensor Scan Interval"
+            app:useSimpleSummaryProvider="true"
+        />
+
+        <SwitchPreferenceCompat
+            app:defaultValue="true"
+            app:key="option_collect_gps"
+            app:title="Collect GPS Data" />
+
+        <ListPreference
+            app:defaultValue="0"
+            app:dependency="option_collect_gps"
+            app:entries="@array/gps_interval"
+            app:entryValues="@array/gps_interval_val"
+            app:key="option_gps_interval"
+            app:title="GPS Scan Interval"
+            app:useSimpleSummaryProvider="true" />
+
     </PreferenceCategory>
 
 
-    <PreferenceCategory app:title="Wifi">
+    <PreferenceCategory app:title="Wi-Fi">
         <SwitchPreferenceCompat
-            app:key="option_wifi_enable"
-            app:title="Collect Wifi Data"
-            app:defaultValue="true"/>
+            app:defaultValue="true"
+            app:key="option_collect_rss"
+            app:title="Collect RSS Data"
+            app:summary="Both 2.4 and 5GHz band"/>
 
         <ListPreference
-            app:key="option_wifi_source"
-            app:dependency="option_wifi_enable"
-            app:defaultValue="rss"
-            app:entries="@array/wifi_source"
-            app:entryValues="@array/wifi_source_value"
-            app:title="Collect Data Type"
+            app:defaultValue="0"
+            app:dependency="option_collect_rss"
+            app:key="option_rss_interval"
+            app:entries="@array/rss_interval"
+            app:entryValues="@array/rss_interval_val"
+            app:title="RSS Scan Interval"
+            app:useSimpleSummaryProvider="true" />
+
+        <SwitchPreferenceCompat
+            app:defaultValue="false"
+            app:key="option_collect_rtt"
+            app:title="Collect RTT Data"/>
+
+        <ListPreference
+            app:defaultValue="0"
+            app:dependency="option_collect_rtt"
+            app:key="option_rtt_interval"
+            app:entries="@array/rtt_interval"
+            app:entryValues="@array/rtt_interval_val"
+            app:title="RTT Scan Interval"
             app:useSimpleSummaryProvider="true" />
 
         <ListPreference
-            app:key="option_ftm_bandwidth"
-            app:dependency="option_wifi_enable"
-            app:defaultValue="1"
+            app:defaultValue="3"
+            app:dependency="option_collect_rtt"
+            app:key="option_rtt_bandwidth"
             app:entries="@array/ftm_bandwidth"
-            app:entryValues="@array/ftm_bandwidth_value"
-            app:title="FTM Bandwidth"
+            app:entryValues="@array/ftm_bandwidth_val"
+            app:title="RTT Bandwidth"
             app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
 
+    <PreferenceCategory app:title="Other">
+        <ListPreference
+            app:defaultValue="10"
+            app:entries="@array/screen_refresh"
+            app:entryValues="@array/screen_refresh_val"
+            app:key="option_screen_refresh_rate"
+            app:title="Screen Refresh Rate"
+            app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 </PreferenceScreen>

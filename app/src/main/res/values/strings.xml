@@ -1,8 +1,4 @@
 <resources>
     <string name="app_name">Collector</string>
     <string name="ftmr_filename">ftmr_list.txt</string>
-
-    <!-- Preference Titles -->
-    <string name="option_gps_enable">GPS_ENABLE</string>
-    <string name="option_wifi_enable">WIFI_ENABLE</string>
 </resources>

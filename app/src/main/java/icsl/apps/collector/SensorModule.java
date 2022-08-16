@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -20,6 +21,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
+import androidx.preference.PreferenceManager;
 
 import static android.os.SystemClock.elapsedRealtime;
 
@@ -27,24 +29,33 @@ public class SensorModule extends Service implements SensorEventListener, Locati
     // Sensor
     private boolean flag_is_sensor_running = false;
     private int n_sensor;
-    private Sensor s1, s2, s3, s4, s5, s6;
+    private Sensor s1, s2, s3, s4, s5, s6, s7, s8, s9, s10;
     private SensorManager sensorManager;
 
+    private boolean flag_collect_sensor_data = false;
+    private boolean flag_collect_gps_data = false;
+    private boolean flag_gps_available = false;
+
     private int sensor_sampling_interval_ms = 10;
-    private int pres_sensor_sampling_interval_ms = 500;
+    private int gps_sampling_interval_ms = 10;
+    private int env_sensor_sampling_interval_ms = 500;
     private float actual_sampling_interval_s;
     private long measurement_start_time_ms;
 
     private float[] last_update_time_s;    // for each sensor
     private int[] count;                // # or sensor measurements for each sensor
 
-    // Array for sensor data
+    // Placeholder for sensor data
     private float[] accL = new float[]{0, 0, 0, 0};
     private float[] gyroL = new float[]{0, 0, 0, 0};
     private float[] magL = new float[]{0, 0, 0, 0};
     private float[] rot_vec = new float[]{0, 0, 0, 0};
     private float[] game_rot_vec = new float[]{0, 0, 0, 0};
     private float pres = 0;
+    private float temp = 0;
+    private float light = 0;
+    private float humidity = 0;
+    private float proximity = 0;
 
     // For orientation & step detection
     private float[] accW = new float[]{0, 0, 0, 0};
@@ -68,25 +79,24 @@ public class SensorModule extends Service implements SensorEventListener, Locati
     private static final float PI = 3.14159265359f;
 
     // GPS
-    private boolean isGPSEnabled = false;
     private LocationManager locationManager;
-    private float last_gps_update_time_s;
     private int count_gps;
 
     // File IO
     private FileModule file;
 
     // Report result
-    private final float sensor_report_interval_s = 0.15f;
-    private float last_sensor_report_time_s;
     private Activity mActivity;
+    private MeasurementListener mListener;
+    private float last_report_time_s;
+    private float screen_refresh_interval_s;
 
-    private final String LOG_TAG = "SENSOR";
+    private final String TAG = "SENSOR_MODULE";
 
-
-    SensorModule(Activity activity) {
+    SensorModule(Activity activity, MeasurementListener listener) {
         mActivity = activity;
-        n_sensor = 6;
+        mListener = listener;
+        n_sensor = 10;
 
         // Sensor manager
         sensorManager = (SensorManager) activity.getApplicationContext().getSystemService(SENSOR_SERVICE);
@@ -97,26 +107,27 @@ public class SensorModule extends Service implements SensorEventListener, Locati
         s4 = sensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);       // built-in sensor fusion alg. (acc + gyro + mag)
         s5 = sensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR);  // built-in sensor fusion alg. (acc + gyro)
         s6 = sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);              // barometer
+        s7 = sensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
+        s8 = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+        s9 = sensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY);
+        s10 = sensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
 
         last_update_time_s = new float[n_sensor];
         count = new int[n_sensor];
 
         // GPS
         locationManager = (LocationManager) activity.getApplication().getSystemService(LOCATION_SERVICE);
-        isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        if (ActivityCompat.checkSelfPermission(mActivity.getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mActivity.getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            flag_gps_available = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
 
-        ((MainActivity) mActivity).update_log("Sensors are ready", false);
-        if (isGPSEnabled)
-            ((MainActivity) mActivity).update_log("GPS is ready", false);
-        else
-            ((MainActivity) mActivity).update_log("[Warning] Unable to initialize GPS", false);
+        // Load settings
+        loadSettings();
+        report_init_status();
     }
-
 
     private void detect_new_step(float acc_diff, float head_avg) {
         step_counter++;
     }
-
 
     private void reset_step_detection_routine() {
         peak_info[0] = last_update_time_s[0];
@@ -132,7 +143,6 @@ public class SensorModule extends Service implements SensorEventListener, Locati
 
         step_counter = 0;
     }
-
 
     // Step detection routine (called whenever new accelerometer readings are available)
     private void step_detection_routine() {
@@ -160,7 +170,7 @@ public class SensorModule extends Service implements SensorEventListener, Locati
         // update gravity using z-axis component of accW
         gravity_earth = (1 - 0.0001f) * gravity_earth + 0.0001f * accW[2];
         if ((gravity_earth > 10.0f) || (gravity_earth < 9.6f))
-            Log.d(LOG_TAG, "Current gravity estimation: " + gravity_earth);
+            Log.d(TAG, "Current gravity estimation: " + gravity_earth);
 
         // get orientation of the device (yaw, pitch, roll)
         sensorManager.getOrientation(game_rot_mat, orientation_angle);
@@ -186,7 +196,7 @@ public class SensorModule extends Service implements SensorEventListener, Locati
             // process prev peak
             if (!is_peak_processed) {
                 if (valley_info[0] <= peak_info[0]) {
-                    Log.d(LOG_TAG, "Warning: no new valley observed after a peak");
+                    Log.d(TAG, "Warning: no new valley observed after a peak");
                 } else {
                     float peak_to_peak_time = curr_time_s - peak_info[0];
 
@@ -232,74 +242,90 @@ public class SensorModule extends Service implements SensorEventListener, Locati
         }
     }
 
-
     @Override
     public void onSensorChanged(SensorEvent event) {
         // Sensor data
-        float elapsed_app_time_s = (float) (elapsedRealtime() / 1e3 - measurement_start_time_ms / 1e3);      // Elapsed time computed using Android OS
-        float elapsed_sensor_fw_time_s = (float) (event.timestamp / 1e9 - measurement_start_time_ms / 1e3);  // Elapsed time computed using Sensor Firmware
-
+        float elapsed_app_time_s = (float) (elapsedRealtime() / 1e3 - measurement_start_time_ms / 1e3);      // elapsed time computed using Android OS
+        float elapsed_sensor_fw_time_s = (float) (event.timestamp / 1e9 - measurement_start_time_ms / 1e3);  // elapsed time computed using Sensor Firmware
         if (!flag_is_sensor_running)
             return;
 
         // Save each sensor data (actual sampling rate is computed with accelerometer readings)
+        int sensor_idx = -1;
+        String str_to_file = "";
+
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             actual_sampling_interval_s = 0.99f * actual_sampling_interval_s + 0.01f * (elapsed_app_time_s - last_update_time_s[0]);
 
             System.arraycopy(event.values, 0, accL, 0, 3);
             step_detection_routine();   // call step detection routine (PDR)
 
-            last_update_time_s[0] = elapsed_app_time_s;
-            count[0]++;
-            file.save_str_to_file(String.format("ACC, %f, %f, %f, %f, %f\n", elapsed_app_time_s, elapsed_sensor_fw_time_s, accL[0], accL[1], accL[2]));
+            sensor_idx = 0;
+            str_to_file = String.format("ACC, %f, %f, %f, %f, %f\n", elapsed_app_time_s, elapsed_sensor_fw_time_s, accL[0], accL[1], accL[2]);
         }
-
-        if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
+        else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
             System.arraycopy(event.values, 0, gyroL, 0, 3);
-            last_update_time_s[1] = elapsed_app_time_s;
-            count[1]++;
-            file.save_str_to_file(String.format("GYRO, %f, %f, %f, %f, %f\n", elapsed_app_time_s, elapsed_sensor_fw_time_s, gyroL[0], gyroL[1], gyroL[2]));
+            sensor_idx = 1;
+            str_to_file = String.format("GYRO, %f, %f, %f, %f, %f\n", elapsed_app_time_s, elapsed_sensor_fw_time_s, gyroL[0], gyroL[1], gyroL[2]);
         }
-
-        if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+        else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
             System.arraycopy(event.values, 0, magL, 0, 3);
-            last_update_time_s[2] = elapsed_app_time_s;
-            count[2]++;
-            file.save_str_to_file(String.format("MAG, %f, %f, %f, %f, %f\n", elapsed_app_time_s, elapsed_sensor_fw_time_s, magL[0], magL[1], magL[2]));
+            sensor_idx = 2;
+            str_to_file = String.format("MAG, %f, %f, %f, %f, %f\n", elapsed_app_time_s, elapsed_sensor_fw_time_s, magL[0], magL[1], magL[2]);
         }
-
-        if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
+        else if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
             System.arraycopy(event.values, 0, rot_vec, 0, 4);
             SensorManager.getRotationMatrixFromVector(rot_mat, event.values);
-            last_update_time_s[3] = elapsed_app_time_s;
-            count[3]++;
-            file.save_str_to_file(String.format("ROT_VEC, %f, %f, %f, %f, %f, %f\n", elapsed_app_time_s, elapsed_sensor_fw_time_s, rot_vec[0], rot_vec[1], rot_vec[2], rot_vec[3]));
+            sensor_idx = 3;
+            str_to_file = String.format("ROT_VEC, %f, %f, %f, %f, %f, %f\n", elapsed_app_time_s, elapsed_sensor_fw_time_s, rot_vec[0], rot_vec[1], rot_vec[2], rot_vec[3]);
         }
-
-        if (event.sensor.getType() == Sensor.TYPE_GAME_ROTATION_VECTOR) {
+        else if (event.sensor.getType() == Sensor.TYPE_GAME_ROTATION_VECTOR) {
             System.arraycopy(event.values, 0, game_rot_vec, 0, 4);
             SensorManager.getRotationMatrixFromVector(game_rot_mat, event.values);
-            last_update_time_s[4] = elapsed_app_time_s;
-            count[4]++;
-            file.save_str_to_file(String.format("GAME_ROT_VEC, %f, %f, %f, %f, %f, %f\n", elapsed_app_time_s, elapsed_sensor_fw_time_s, game_rot_vec[0], game_rot_vec[1], game_rot_vec[2], game_rot_vec[3]));
+            sensor_idx = 4;
+            str_to_file = String.format("GAME_ROT_VEC, %f, %f, %f, %f, %f, %f\n", elapsed_app_time_s, elapsed_sensor_fw_time_s, game_rot_vec[0], game_rot_vec[1], game_rot_vec[2], game_rot_vec[3]);
         }
-
-        if (event.sensor.getType() == Sensor.TYPE_PRESSURE) {
+        else if (event.sensor.getType() == Sensor.TYPE_PRESSURE) {
             pres = event.values[0];
-            last_update_time_s[5] = elapsed_app_time_s;
-            count[5]++;
-            file.save_str_to_file(String.format("PRES, %f, %f, %f\n", elapsed_app_time_s, elapsed_sensor_fw_time_s, pres));
+            sensor_idx = 5;
+            str_to_file = String.format("PRES, %f, %f, %f\n", elapsed_app_time_s, elapsed_sensor_fw_time_s, pres);
         }
-
-        report_sensor_measurement_status();
+        else if (event.sensor.getType() == Sensor.TYPE_AMBIENT_TEMPERATURE) {
+            temp = event.values[0];
+            sensor_idx = 6;
+            str_to_file = String.format("TEMP, %f, %f, %f\n", elapsed_app_time_s, elapsed_sensor_fw_time_s, temp);
+        }
+        else if (event.sensor.getType() == Sensor.TYPE_LIGHT){
+            light = event.values[0];
+            sensor_idx = 7;
+            str_to_file = String.format("LIGHT, %f, %f, %f\n", elapsed_app_time_s, elapsed_sensor_fw_time_s, light);
+        }
+        else if (event.sensor.getType() == Sensor.TYPE_RELATIVE_HUMIDITY){
+            humidity = event.values[0];
+            sensor_idx = 8;
+            str_to_file = String.format("HUMIDITY, %f, %f, %f\n", elapsed_app_time_s, elapsed_sensor_fw_time_s, humidity);
+        }
+        else if (event.sensor.getType() == Sensor.TYPE_PROXIMITY) {
+            proximity = event.values[0];
+            sensor_idx = 9;
+            str_to_file = String.format("PROX, %f, %f, %f\n", elapsed_app_time_s, elapsed_sensor_fw_time_s, proximity);
+        }
+        else{
+            Log.d(TAG, String.format("Unidentified sensor type: %d", event.sensor.getType()));
+        }
+        if (sensor_idx >= 0){
+            last_update_time_s[sensor_idx] = elapsed_app_time_s;
+            count[sensor_idx]++;
+        }
+        if (file != null && str_to_file.length()>0)
+            file.save_str_to_file(str_to_file);
+        report_measurement_status();
     }
-
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        // Not implemented yet
+        // Nothing to implement
     }
-
 
     @Override
     public void onLocationChanged(@NonNull Location location) {
@@ -325,100 +351,173 @@ public class SensorModule extends Service implements SensorEventListener, Locati
         }
 
         // GPS
-        if (flag_is_sensor_running)
+        if (flag_is_sensor_running && file != null)
             file.save_str_to_file(String.format("GPS, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %f\n", elapsed_app_time_s, elapsed_fw_time_s, latitude, longitude, altitude, bearing, speed, accuracy, verticalAccuracy, bearingAccuracy, speedAccuracy));
-
-        report_sensor_measurement_status();
+        report_measurement_status();
     }
 
-
-    private void report_sensor_measurement_status() {
-        float elapsed_app_time_s = (float) (elapsedRealtime() / 1e3 - measurement_start_time_ms / 1e3);
-        if ((elapsed_app_time_s - last_sensor_report_time_s) < sensor_report_interval_s)
-            return;
-
-        last_sensor_report_time_s = elapsed_app_time_s;
-        String sensor_str = String.format("Sampling rate: %.2f Hz, Step counter: %d\n", 1.0f / actual_sampling_interval_s, (int) step_counter);
-        sensor_str += String.format("    Azimuth: %d deg, Pitch: %d deg, Roll: %d deg\n", (int)(orientation_angle[0] * 180. / PI), (int)(orientation_angle[1] * 180. / PI), (int)(orientation_angle[2] * 180. / PI));
-        for (int k = 0; k < n_sensor; k++) {
-            if (k == 0)
-                sensor_str += "    # data: Acc";
-            else if (k == 1)
-                sensor_str += ", Gyro";
-            else if (k == 2)
-                sensor_str += ", Mag";
-            else if (k == 3)
-                sensor_str += "\n    RVec";
-            else if (k == 4)
-                sensor_str += ", GRVec";
-            else if (k == 5)
-                sensor_str += ", Pres";
-
-            if (count[k] < 1000)
-                sensor_str += String.format("(%d)", count[k]);
+    private void report_init_status(){
+        String str_setting = "[Sensor settings]\n";
+        if (flag_collect_sensor_data){
+            str_setting += "Sensor measurement: enabled\n";
+            if (sensor_sampling_interval_ms == 0)
+                str_setting += "Sensor sampling rate: fastest\n";
             else
-                sensor_str += String.format("(%.1fk)", count[k] / 1e3);
+                str_setting += String.format("Sensor sampling rate: %.0f [Hz]\n", 1000. / sensor_sampling_interval_ms);
+        }
+        else
+            str_setting += "Sensor measurement: disabled\n";
+        if (flag_collect_gps_data){
+            if (!flag_gps_available)
+                str_setting += "WARNING: GPS is not available on this device\n";
+            else {
+                str_setting += "GPS measurement: enabled\n";
+                if (gps_sampling_interval_ms == 0)
+                    str_setting += "GPS sampling interval: fastest\n";
+                else
+                    str_setting += String.format("GPS sampling interval: %.1f [sec]\n", gps_sampling_interval_ms / 1000.);
+            }
+        }
+        else
+            str_setting += "GPS measurement: disabled\n";
+
+        if (flag_collect_sensor_data || (flag_collect_gps_data && flag_gps_available))  // sensor data will be collected
+            mListener.sensor_status(str_setting, MeasurementListener.TYPE_INIT_SUCCESS);
+        else
+            mListener.sensor_status(str_setting, MeasurementListener.TYPE_INIT_FAILED);
+        mListener.log_msg(str_setting);
+    }
+
+    private void report_measurement_status(){
+        float elapsed_app_time_s = (float) (elapsedRealtime() / 1e3 - measurement_start_time_ms / 1e3);
+        if ((elapsed_app_time_s - last_report_time_s) >= screen_refresh_interval_s){
+            last_report_time_s = elapsed_app_time_s;
+            String status = String.format("Sampling rate: %.2f Hz, Step counter: %d\n", 1.0f / actual_sampling_interval_s, (int) step_counter);
+            status += String.format("    Azimuth: %d deg, Pitch: %d deg, Roll: %d deg\n", (int)(orientation_angle[0] * 180. / PI), (int)(orientation_angle[1] * 180. / PI), (int)(orientation_angle[2] * 180. / PI));
+            for (int k = 0; k < n_sensor; k++) {
+                if (k == 0)
+                    status += "    # data: Acc";
+                else if (k == 1)
+                    status += ", Gyro";
+                else if (k == 2)
+                    status += ", Mag";
+                else if (k == 3)
+                    status += "\n    RVec";
+                else if (k == 4)
+                    status += ", GRVec";
+                else if (k == 5)
+                    status += ", Pres";
+                else if (k == 6)
+                    status += ", Temp";
+                else if (k == 7)
+                    status += "\n    Light";
+                else if (k == 8)
+                    status += ", Humidity";
+                else if (k == 9)
+                    status += ", Prox";
+
+                if (count[k] < 1000)
+                    status += String.format("(%d)", count[k]);
+                else
+                    status += String.format("(%.1fk)", count[k] / 1e3);
+            }
+
+            status += ", GPS";
+            if (count_gps < 1000)
+                status += String.format("(%d)", count_gps);
+            else
+                status += String.format("(%.1fk)", count_gps / 1e3);
+
+            String result = "";
+            result += String.format("Local Acc x: %2.2f,  y: %2.2f,  z: %2.2f [m/s^2]\n", accL[0], accL[1], accL[2]);
+            result += String.format("Global Acc x: %2.2f,  y: %2.2f,  z: %2.2f [m/s^2]\n", accW[0], accW[1], accW[2]);
+            result += String.format("Local Gyro x: %2.2f,  y: %2.2f,  z: %2.2f [rad/s]\n", gyroL[0], gyroL[1], gyroL[2]);
+            result += String.format("Local Mag x: %2.2f,  y: %2.2f,  z: %2.2f [uT]\n", magL[0], magL[1], magL[2]);
+            result += String.format("Air pressure: %.2f [hPa]\n", pres);
+            result += String.format("Temperature: %.2f [Celsius]\n", temp);
+            result += String.format("Light: %.2f [lx]\n", light);
+            result += String.format("Humidity: %.2f [%%]\n", humidity);
+            result += String.format("Proximity: %.2f [cm]\n", proximity);
+
+            mListener.sensor_status(status, MeasurementListener.TYPE_SENSOR_STATUS);
+            mListener.sensor_status(result, MeasurementListener.TYPE_SENSOR_VALUE);
+        }
+    }
+
+    // start & stop sensor measurement
+    public boolean start_measurement(long start_time_ms, FileModule _file) {
+        if (flag_is_sensor_running) {
+            Toast.makeText(mActivity.getApplicationContext(), "Sensor measurement is already running", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (!flag_collect_sensor_data) {
+            if (!flag_collect_gps_data) {
+                Toast.makeText(mActivity.getApplicationContext(), "Both sensor/GPS measurements are disabled", Toast.LENGTH_SHORT).show();
+                return false;
+            } else if (!flag_gps_available) {
+                Toast.makeText(mActivity.getApplicationContext(), "GPS is not available", Toast.LENGTH_SHORT).show();
+                return false;
+            }
         }
 
-        sensor_str += ", GPS";
-        if (count_gps < 1000)
-            sensor_str += String.format("(%d)", count_gps);
-        else
-            sensor_str += String.format("(%.1fk)", count_gps / 1e3);
+        // start measurement
+        measurement_start_time_ms = start_time_ms;
+        file = _file;
 
-        ((MainActivity) mActivity).update_measurement_status(sensor_str, 0);
-    }
-
-
-    // start & stop sensor measurement (called from MainActivity)
-    public void start_tracking(long start_time_from_main_ms, FileModule file_from_main, boolean is_enable_gps) {
-        if (!flag_is_sensor_running) {
-            // Init
-            measurement_start_time_ms = start_time_from_main_ms;
-            file = file_from_main;
-
+        if (flag_collect_sensor_data) {
             // Sensor module
             sensorManager.registerListener(this, s1, sensor_sampling_interval_ms * 1000);
             sensorManager.registerListener(this, s2, sensor_sampling_interval_ms * 1000);
             sensorManager.registerListener(this, s3, sensor_sampling_interval_ms * 1000);
             sensorManager.registerListener(this, s4, sensor_sampling_interval_ms * 1000);
             sensorManager.registerListener(this, s5, sensor_sampling_interval_ms * 1000);
-            sensorManager.registerListener(this, s6, pres_sensor_sampling_interval_ms * 1000);
+            sensorManager.registerListener(this, s6, env_sensor_sampling_interval_ms * 1000);
+            sensorManager.registerListener(this, s7, env_sensor_sampling_interval_ms * 1000);
+            sensorManager.registerListener(this, s8, env_sensor_sampling_interval_ms * 1000);
+            sensorManager.registerListener(this, s9, env_sensor_sampling_interval_ms * 1000);
+            sensorManager.registerListener(this, s10, env_sensor_sampling_interval_ms * 1000);
+        }
 
-            for (int k = 0; k < n_sensor; k++) {
-                last_update_time_s[k] = 0;          // from start_time
-                count[k] = 0;
-            }
-            last_sensor_report_time_s = 0;
-            actual_sampling_interval_s = sensor_sampling_interval_ms / 1000.0f;
+        // Reset sensor-related values
+        for (int k = 0; k < n_sensor; k++) {
+            last_update_time_s[k] = 0;          // from start_time
+            count[k] = 0;
+        }
+        actual_sampling_interval_s = sensor_sampling_interval_ms / 1000.0f;
+        reset_step_detection_routine();
 
-            reset_step_detection_routine();
-
-            // GPS
+        // GPS
+        if (flag_collect_gps_data) {
             if (ActivityCompat.checkSelfPermission(mActivity.getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mActivity.getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-                Toast.makeText(mActivity.getApplicationContext(), "[WARNING] GPS coordinates will not be recorded", Toast.LENGTH_LONG).show();
-            else {
-                if (is_enable_gps)
-                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 0, this);
-                last_gps_update_time_s = 0;
-                last_gps_update_time_s = 0;
-                count_gps = 0;
-            }
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, gps_sampling_interval_ms, 0, this);
+            count_gps = 0;
+            if (!flag_gps_available)
+                Toast.makeText(mActivity, "[Warning] GPS is not available", Toast.LENGTH_SHORT).show();
         }
         flag_is_sensor_running = true;
+        last_report_time_s = 0f;
+        return true;
     }
 
-    public void stop_tracking(){
+    public void stop_measurement(){
         if (sensorManager != null)
             sensorManager.unregisterListener(this);
         if (locationManager != null)
             locationManager.removeUpdates(this);
-
-        if (flag_is_sensor_running){
-            flag_is_sensor_running = false;
-        }
+        flag_is_sensor_running = false;
     }
 
+    private void loadSettings() {
+        Log.d(TAG, "Load settings");
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mActivity);
+        SharedPreferences.Editor editor = pref.edit();
+
+        flag_collect_sensor_data = pref.getBoolean("option_collect_sensor", true);
+        flag_collect_gps_data = pref.getBoolean("option_collect_gps", true);
+        sensor_sampling_interval_ms = Integer.parseInt(pref.getString("option_sensor_interval", "10"));
+        gps_sampling_interval_ms = Integer.parseInt(pref.getString("option_gps_interval", "500"));
+        screen_refresh_interval_s = 1f / Float.parseFloat(pref.getString("option_screen_refresh_rate", "10"));
+    }
 
     @Nullable
     @Override

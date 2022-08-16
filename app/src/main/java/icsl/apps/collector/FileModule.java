@@ -25,7 +25,6 @@ public class FileModule {
         create_file(filename);
     }
 
-
     FileModule(Activity activity, String filename, boolean append_date, boolean append_model_info, String extension) {
         // Create file with filename and additional options
         // append_date: append date and time to filename
@@ -44,7 +43,6 @@ public class FileModule {
         mActivity = activity;
         create_file(filename);
     }
-
 
     private void create_file(String filename){
         File folder = new File(mActivity.getApplicationContext().getExternalFilesDir(null), "measured_data");
@@ -68,7 +66,6 @@ public class FileModule {
         }
         is_file_created = true;
 
-
         // Put file headers
         String date = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
         String header = "";
@@ -78,7 +75,6 @@ public class FileModule {
         header += "## SDK version: " + Build.VERSION.SDK_INT + "\n";
         save_str_to_file(header);
     }
-
 
     public void save_str_to_file(String data){
         // save a single string to file
@@ -104,7 +100,6 @@ public class FileModule {
             }
         }
     }
-
 
     public void save_str_to_file(ArrayList<String> data){
         // save a list of strings to file
@@ -135,5 +130,4 @@ public class FileModule {
     public String get_filename(){
         return file.getAbsolutePath();
     }
-
 }

@@ -37,8 +37,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import icsl.apps.collector.R;
-
 public class WifiActivity extends AppCompatActivity {
 
     private WifiManager wifiManager;
@@ -71,7 +69,7 @@ public class WifiActivity extends AppCompatActivity {
         setContentView(R.layout.activity_wifi);
 
         // Layout
-        tv = (TextView) findViewById(R.id.tv);
+        tv = (TextView) findViewById(R.id.tv_s);
         tvftm = (TextView) findViewById(R.id.tvftm);
         svftm = (ScrollView) findViewById(R.id.svftm);
         btn = (Button) findViewById(R.id.btn);

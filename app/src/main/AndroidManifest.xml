@@ -13,28 +13,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Pdr">
-        <activity
-            android:name="icsl.apps.collector.SensorActivity"
-            android:label="Sensor">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="icsl.apps.collector.MainActivity"/>
-        </activity>
-        <activity
-            android:name="icsl.apps.collector.WifiActivity"
-            android:label="WiFi">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="icsl.apps.collector.MainActivity" />
-        </activity>
-        <activity
-            android:name="icsl.apps.collector.SettingsActivity"
-            android:label="Settings">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="icsl.apps.collector.MainActivity" />
-        </activity>
+        android:theme="@style/Theme.app_collector">
         <activity android:name="icsl.apps.collector.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

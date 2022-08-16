@@ -1,5 +1,6 @@
-## FTMR list 
-## GroupID,  AP name,  mac address,  frequency
+## FTMR list (line starting with ## will be ignored)
+## GroupID,  AP name,  mac address,  frequency[MHz]
+icsl, icsl_rtt_testbed, 28:bd:89:c3:01:7f, 5745
 maxwell, maxwell_testbed_1_5G, 3C:7C:3F:0C:B3:1C, 5240
 maxwell, maxwell_testbed_2_5G, 24:4B:FE:64:AE:9C, 5240
 maxwell, maxwell_testbed_3_5G, 3C:7C:3F:0C:DE:54, 5240

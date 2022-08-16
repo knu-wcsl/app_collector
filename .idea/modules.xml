@@ -2,11 +2,11 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/pdr.iml" filepath="$PROJECT_DIR$/.idea/modules/pdr.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/pdr.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/pdr.app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/pdr.app.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/pdr.app.androidTest.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/pdr.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/pdr.app.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/pdr.app.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/pdr.app.unitTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app_collector.iml" filepath="$PROJECT_DIR$/.idea/modules/app_collector.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/app_collector.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/app_collector.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/app_collector.app.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/app_collector.app.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/app_collector.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/app_collector.app.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/app_collector.app.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/app_collector.app.unitTest.iml" />
     </modules>
   </component>
 </project>

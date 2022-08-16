@@ -1,2 +1,2 @@
 include ':app'
-rootProject.name = "pdr"
+rootProject.name = "app_collector"

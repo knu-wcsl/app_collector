@@ -3,6 +3,23 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Sync/AndroidStudioProjects/app_collector/app/src/main/res/drawable-anydpi/ic_action_sensor.xml" value="0.1" />
+        <entry key="..\:/Sync/AndroidStudioProjects/app_collector/app/src/main/res/drawable/selector_bottom_navi_home.xml" value="0.1" />
+        <entry key="..\:/Sync/AndroidStudioProjects/app_collector/app/src/main/res/drawable/selector_bottom_navi_server.xml" value="0.1" />
+        <entry key="..\:/Sync/AndroidStudioProjects/app_collector/app/src/main/res/layout/activity_main.xml" value="0.1" />
+        <entry key="..\:/Sync/AndroidStudioProjects/app_collector/app/src/main/res/layout/activity_sensor.xml" value="0.3333333333333333" />
+        <entry key="..\:/Sync/AndroidStudioProjects/app_collector/app/src/main/res/layout/activity_server.xml" value="0.14387031408308004" />
+        <entry key="..\:/Sync/AndroidStudioProjects/app_collector/app/src/main/res/layout/activity_setting.xml" value="0.18072916666666666" />
+        <entry key="..\:/Sync/AndroidStudioProjects/app_collector/app/src/main/res/layout/activity_wifi.xml" value="0.19895833333333332" />
+        <entry key="..\:/Sync/AndroidStudioProjects/app_collector/app/src/main/res/layout/bottom_navigation_tap.xml" value="0.1175925925925926" />
+        <entry key="..\:/Sync/AndroidStudioProjects/app_collector/app/src/main/res/layout/fragment_home.xml" value="0.10666666666666667" />
+        <entry key="..\:/Sync/AndroidStudioProjects/app_collector/app/src/main/res/layout/fragment_sensor.xml" value="0.14427083333333332" />
+        <entry key="..\:/Sync/AndroidStudioProjects/app_collector/app/src/main/res/layout/fragment_server.xml" value="0.22" />
+        <entry key="..\:/Sync/AndroidStudioProjects/app_collector/app/src/main/res/layout/fragment_setting.xml" value="0.1175925925925926" />
+        <entry key="..\:/Sync/AndroidStudioProjects/app_collector/app/src/main/res/layout/fragment_wifi.xml" value="0.16666666666666666" />
+        <entry key="..\:/Sync/AndroidStudioProjects/app_collector/app/src/main/res/menu/bottom_nav_menu.xml" value="0.21481481481481482" />
+        <entry key="..\:/Sync/AndroidStudioProjects/app_collector/app/src/main/res/menu/main.xml" value="0.1175925925925926" />
+        <entry key="..\:/Sync/AndroidStudioProjects/app_collector/app/src/main/res/xml/root_preferences.xml" value="0.1" />
         <entry key="..\:/Sync/AndroidStudioProjects/pdr/app/src/main/res/layout/activity_sensor.xml" value="0.17249240121580547" />
         <entry key="..\:/Sync/AndroidStudioProjects/pdr/app/src/main/res/layout/settings_activity.xml" value="0.17249240121580547" />
         <entry key="..\:/Users/Jeongsik/AndroidStudioProjects/data_collector/app/src/main/res/layout/activity_setting.xml" value="0.1" />

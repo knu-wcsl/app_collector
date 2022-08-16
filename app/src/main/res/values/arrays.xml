@@ -1,26 +1,115 @@
 <resources>
-    <!-- Reply Preference -->
-    <string-array name="wifi_source">
-        <item>RSS (2.4 and 5 GHz)</item>
-        <item>RTT (FTM protocol)</item>
+    <!-- Sensor -->
+    <string-array name="sensor_interval">
+        <item>Fastest </item>
+        <item>100 Hz (default)</item>
+        <item>50 Hz </item>
+        <item>10 Hz </item>
+        <item>5 Hz (not recommended)</item>
+        <item>1 Hz (not recommended)</item>
     </string-array>
 
-    <string-array name="wifi_source_value">
-        <item>rss</item>
-        <item>rtt</item>
+    <string-array name="sensor_interval_val">
+        <item>0 </item>
+        <item>10 </item>
+        <item>20 </item>
+        <item>100 </item>
+        <item>200 </item>
+        <item>1000 </item>
+    </string-array>
+
+    <string-array name="gps_interval">
+        <item>Fastest (default)</item>
+        <item> 500 ms</item>
+        <item>1 sec</item>
+        <item>5 sec</item>
+        <item>10 sec</item>
+        <item>30 sec</item>
+        <item>60 sec</item>
+    </string-array>
+
+    <string-array name="gps_interval_val">
+        <item>0</item>
+        <item>500</item>
+        <item>1000</item>
+        <item>5000</item>
+        <item>10000</item>
+        <item>30000</item>
+        <item>60000</item>
+    </string-array>
+
+    <string-array name="rss_interval">
+        <item>Fastest (Default)</item>
+        <item>5 sec</item>
+        <item>10 sec</item>
+        <item>30 sec</item>
+        <item>60 sec</item>
+        <item>120 sec</item>
+    </string-array>
+
+    <string-array name="rss_interval_val">
+        <item>0</item>
+        <item>5000</item>
+        <item>10000</item>
+        <item>30000</item>
+        <item>60000</item>
+        <item>120000</item>
+    </string-array>
+
+    <string-array name="rtt_interval">
+        <item>Fastest (Default)</item>
+        <item>500 ms</item>
+        <item>1 sec</item>
+        <item>2 sec</item>
+        <item>5 sec</item>
+        <item>10 sec</item>
+        <item>30 sec</item>
+        <item>60 sec</item>
+    </string-array>
+
+    <string-array name="rtt_interval_val">
+        <item>0</item>
+        <item>500</item>
+        <item>1000</item>
+        <item>2000</item>
+        <item>5000</item>
+        <item>10000</item>
+        <item>30000</item>
+        <item>60000</item>
     </string-array>
 
     <string-array name="ftm_bandwidth">
         <item>20 MHz</item>
         <item>40 MHz</item>
         <item>80 MHz</item>
-        <item>ALL</item>
+        <item>ALL (20,40, 80 MHz)</item>
     </string-array>
 
-    <string-array name="ftm_bandwidth_value">
+    <string-array name="ftm_bandwidth_val">
         <item>0</item>
         <item>1</item>
         <item>2</item>
         <item>3</item>
     </string-array>
+
+    <string-array name="screen_refresh">
+        <item>10 Hz (default)</item>
+        <item>20 Hz </item>
+        <item>30 Hz </item>
+        <item>40 Hz </item>
+        <item>50 Hz </item>
+        <item>60 Hz </item>
+    </string-array>
+
+    <string-array name="screen_refresh_val">
+        <item> 10 </item>
+        <item> 20 </item>
+        <item> 30 </item>
+        <item> 40 </item>
+        <item> 50 </item>
+        <item> 60 </item>
+    </string-array>
+
+
+
 </resources>
