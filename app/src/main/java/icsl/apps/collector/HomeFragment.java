@@ -5,7 +5,6 @@ import static android.os.SystemClock.elapsedRealtime;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -148,7 +147,7 @@ public class HomeFragment extends Fragment implements MeasurementListener{
         for (int k = 0; k < str_sensor.length; k++)
             header += "## " + str_sensor[k] + "\n";
 
-        WifiAPManager wifiAPManager = new WifiAPManager(getActivity());
+        WifiAPManager wifiAPManager = new WifiAPManager(getActivity(), "ftmr_list.txt", true);
         header += wifiAPManager.get_ftm_list_for_file_header();
         header += "## ---------- Header End ----------\n";
         file.save_str_to_file(header);
@@ -181,81 +180,6 @@ public class HomeFragment extends Fragment implements MeasurementListener{
             log_str += log_str_set.get(i) + "\n";
         tv2.setText(log_str);
     }
-
-//    public void update_measurement_status(String str, int type){
-//        if (type == 0)
-//            last_status_sensor = str;
-//        else if (type == 1) {
-//            last_status_wifi = str;
-//            last_wifi_status_update_time_ms = elapsedRealtime();
-//        }
-//
-//        int elapsed_app_time_s = (int) (elapsedRealtime() / 1e3 - measurement_start_time_ms / 1e3);
-//        int elapsed_app_time_min = elapsed_app_time_s / 60;
-//        elapsed_app_time_s %= 60;
-//
-//        String result_str = String.format("[Measurement] Elapsed time: %02d:%02d\n", elapsed_app_time_min, elapsed_app_time_s);
-//        result_str += "[Sensor] " + last_status_sensor + "\n";
-//        result_str += "[Wifi] " + last_status_wifi;
-//
-//        if ((elapsedRealtime() - last_wifi_status_update_time_ms) > 5000)
-//            result_str +=String.format("\n    [Warning] No Wifi results measured for %d sec", (int)(elapsedRealtime()/1e3 - last_wifi_status_update_time_ms/1e3));
-//
-//        tv.setText(result_str);
-//    }
-
-//    private void loadSettings() {
-//        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-//        SharedPreferences.Editor editor = pref.edit();
-//
-//        if (!flag_rtt_supported) {
-//            editor.putString("option_wifi_source", "rss");
-//            editor.apply();
-//        }
-//        add_log("---------- MEASUREMENT SETTINGS ----------", false);
-//
-//        flag_gps_enabled = pref.getBoolean("option_gps_enable", true);
-//        flag_wifi_enabled = pref.getBoolean("option_wifi_enable", true);
-//        flag_rss_enabled = "rss".equals(pref.getString("option_wifi_source", "rtt"));
-//        ftm_bandwidth = Integer.parseInt(pref.getString("option_ftm_bandwidth", "1"));
-//        if ((ftm_bandwidth != 0) && (ftm_bandwidth != 1) && (ftm_bandwidth != 2) && ftm_bandwidth != 3) {
-//            editor.putString("option_ftm_bandwidth", "1");
-//            editor.apply();
-//            ftm_bandwidth = 1;      // Default: 40 MHz
-//        }
-//        update_log("Collect Sensor data (rate: 100 Hz)", false);
-//        if (flag_gps_enabled)
-//            update_log("Collect GPS data (fastest)", false);
-//        else
-//            update_log("[Warning] disabled GPS data collection", false);
-//
-//        if (flag_wifi_enabled) {
-//            if (flag_rss_enabled) {
-//                update_log("Collect WiFi RSS data (fastest)", false);
-//                WifiManager wifiManager = (WifiManager) getContext().getSystemService(WIFI_SERVICE);
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-//                    if (!wifiManager.isScanThrottleEnabled())
-//                        flag_wifi_throttling_enabled = false;
-//                }
-//                if (flag_wifi_throttling_enabled && flag_rss_enabled) {
-//                    update_log("[Warning] WiFi RSS scan performance may be limited. Please disable WiFi scan throttling option from developer options", false);
-//                }
-//            }
-//            else {
-//                if (ftm_bandwidth == 0)
-//                    update_log("Collect WiFi RTT (BW: 20 MHz) data (500 ms)", false);
-//                else if (ftm_bandwidth == 1)
-//                    update_log("Collect WiFi RTT (BW: 40 MHz) data (500 ms)", false);
-//                else if (ftm_bandwidth == 2)
-//                    update_log("Collect WiFi RTT (BW: 80 MHz) data (500 ms)", false);
-//                else if (ftm_bandwidth == 3)
-//                    update_log("Collect WiFi RTT (BW: ALL) data (500 ms)", false);
-//            }
-//        }
-//        else
-//            update_log("[Warning] WiFi data collection is disabled", false);
-//    }
-
 
     @Override
     public void onStop() {
@@ -296,6 +220,11 @@ public class HomeFragment extends Fragment implements MeasurementListener{
             last_wifi_status_update_time_ms = elapsedRealtime();
             update_display();
         }
+    }
+
+    @Override
+    public void server_status(String status, int type) {
+
     }
 
     public void update_display(){

@@ -510,8 +510,6 @@ public class SensorModule extends Service implements SensorEventListener, Locati
     private void loadSettings() {
         Log.d(TAG, "Load settings");
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mActivity);
-        SharedPreferences.Editor editor = pref.edit();
-
         flag_collect_sensor_data = pref.getBoolean("option_collect_sensor", true);
         flag_collect_gps_data = pref.getBoolean("option_collect_gps", true);
         sensor_sampling_interval_ms = Integer.parseInt(pref.getString("option_sensor_interval", "10"));

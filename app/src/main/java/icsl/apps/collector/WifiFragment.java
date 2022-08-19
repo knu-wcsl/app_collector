@@ -3,7 +3,9 @@ package icsl.apps.collector;
 import static android.content.Context.WIFI_RTT_RANGING_SERVICE;
 
 import android.content.pm.PackageManager;
+import android.icu.util.Measure;
 import android.net.wifi.rtt.WifiRttManager;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -63,7 +65,9 @@ public class WifiFragment extends Fragment implements MeasurementListener{
         btn2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    wifiModule.invoke_single_rtt_scan();
+                }
             }
         });
 
@@ -92,5 +96,12 @@ public class WifiFragment extends Fragment implements MeasurementListener{
             tv.setText("[RSS Scan Results]\n" + status);
             tv2.setText("[RTT]\nFTM responders from 'ftmr_list.txt':\n" + wifiAPManager.get_ftmr_list());
         }
+        if (type == MeasurementListener.TYPE_RTT_VALUE){
+        }
+    }
+
+    @Override
+    public void server_status(String status, int type) {
+
     }
 }

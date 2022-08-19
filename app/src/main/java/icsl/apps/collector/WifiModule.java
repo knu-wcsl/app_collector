@@ -64,7 +64,7 @@ public class WifiModule {
     // WiFi Service
     private WifiManager wifiManager;
     private WifiReceiver wifiReceiver;
-    public WifiAPManager wifiAPManager;
+    public WifiAPManager wifiAPManager, wifiAPManager_discovered;
     private WifiRttManager wifiRttManager;
 
     // RTT measurement
@@ -77,12 +77,12 @@ public class WifiModule {
     private int[] n_active_ap;
     ArrayList<WifiAPManager.APInfo> aplist;
     private int curr_ap_idx;
+    private String str_to_listener_rtt;
 
     // Instances
     private Activity mActivity;
     private MeasurementListener mListener;
     private FileModule file;
-
 
     WifiModule(Activity activity, MeasurementListener listener){
         mActivity = activity;
@@ -90,10 +90,8 @@ public class WifiModule {
 
         wifiManager = (WifiManager) activity.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         wifiReceiver = new WifiReceiver();
-        wifiAPManager = new WifiAPManager(mActivity);
-        ArrayList<String> init_result = wifiAPManager.get_init_result();
-//        for (int k=0; k<init_result.size(); k++)
-//            ((MainActivity) mActivity).update_log(init_result.get(k), false);
+        wifiAPManager = new WifiAPManager(mActivity, "ftmr_list.txt", true);
+        wifiAPManager_discovered = new WifiAPManager(mActivity, "ftmr_list_discovered.txt", true);
 
         // To receive RSS scan results
         IntentFilter intentFilter = new IntentFilter();
@@ -105,7 +103,7 @@ public class WifiModule {
         report_init_status();
 
         // Prepare RTT scan
-        if (flag_rtt_supported && flag_collect_rtt_data){
+        if (flag_rtt_supported){
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 wifiRttManager = (WifiRttManager) mActivity.getApplicationContext().getSystemService(WIFI_RTT_RANGING_SERVICE);
                 Log.d(TAG, RangingRequest.getMaxPeers() + "");
@@ -117,11 +115,8 @@ public class WifiModule {
 
     public void invoke_single_rss_scan() {
         flag_test_single_scan = true;
-        if (clear_to_scan) {
+        if (clear_to_scan || (elapsedRealtime() - last_scan_init_time_ms) > retry_time_rss_ms) {
             clear_to_scan = false;
-            wifiManager.startScan();
-            last_scan_init_time_ms = elapsedRealtime();
-        } else if ((elapsedRealtime() - last_scan_init_time_ms) > retry_time_rss_ms) {
             wifiManager.startScan();
             last_scan_init_time_ms = elapsedRealtime();
         } else{
@@ -131,13 +126,13 @@ public class WifiModule {
 
     @RequiresApi(api = Build.VERSION_CODES.P)
     public void invoke_single_rtt_scan(){
-        if(clear_to_scan) {
+        if(clear_to_scan || (elapsedRealtime() - last_scan_init_time_ms) > retry_time_rtt_ms) {
             clear_to_scan = false;
-            invoke_rtt_scan();
+            str_to_listener_rtt = "";
             last_scan_init_time_ms = elapsedRealtime();
-        } else if ((elapsedRealtime() - last_scan_init_time_ms) > retry_time_rtt_ms){
+            curr_ap_idx = 0;
+            n_active_ap = new int[3];
             invoke_rtt_scan();
-            last_scan_init_time_ms = elapsedRealtime();
         } else{
             Toast.makeText(mActivity.getApplicationContext(), "Received too many scan requests. Please try again later", Toast.LENGTH_SHORT).show();
         }
@@ -204,6 +199,7 @@ public class WifiModule {
             float elapsed_scan_time_ms = elapsedRealtime() - last_scan_init_time_ms;
             String status = String.format("Scan index: %d, time: %d ms, # AP: (%d, %d, %d) (total: %d)", wifi_scan_idx, (int)elapsed_scan_time_ms, n_active_ap[0], n_active_ap[1], n_active_ap[2], aplist.size());
             mListener.wifi_status(status, MeasurementListener.TYPE_WIFI_STATUS);
+            mListener.wifi_status(str_to_listener_rtt, MeasurementListener.TYPE_RTT_VALUE);
             return;
         }
         Log.d(TAG, curr_rtt_bandwidth + ", " + rtt_scan_bandwidth + ", " + curr_ap_idx);
@@ -234,18 +230,14 @@ public class WifiModule {
             float elapsed_time_ms = elapsedRealtime() - measurement_start_time_ms;
             float elapsed_scan_time_ms = elapsedRealtime() - last_scan_init_time_ms;
             String str_to_file = String.format("RTT, %f, %f", elapsed_time_ms/1e3, elapsed_scan_time_ms/1e3);
-            if (curr_rtt_bandwidth == 0)
-                str_to_file += ", 20\n";
-            else if (curr_rtt_bandwidth == 1)
-                str_to_file += ", 40\n";
-            else if (curr_rtt_bandwidth == 2)
-                str_to_file += ", 80\n";
+            str_to_file += String.format(", %d\n", 20 * (int) Math.pow(2, curr_rtt_bandwidth + 1));
 
             for (int k=0; k < results.size(); k++) {
                 RangingResult curr = results.get(k);
                 if (curr.getStatus() == RangingResult.STATUS_SUCCESS) {
                     n_active_ap[curr_rtt_bandwidth] += 1;
                     str_to_file += String.format("RTT, %f, %s, %f, %f, %d, %d, %d\n", (float) (curr.getRangingTimestampMillis() - measurement_start_time_ms)/1e3, curr.getMacAddress(), (float) curr.getDistanceMm() / 1e3, (float) curr.getDistanceStdDevMm() / 1e3, curr.getRssi(), curr.getNumSuccessfulMeasurements(), curr.getNumAttemptedMeasurements());
+                    str_to_listener_rtt += String.format("%d MHz, %s, %f, %f, %d, (%d/%d)\n", (int) 20 * Math.pow(2, curr_rtt_bandwidth + 1), curr.getMacAddress(), (float) curr.getDistanceMm() / 1e3, (float) curr.getDistanceStdDevMm() / 1e3, curr.getRssi(), curr.getNumSuccessfulMeasurements(), curr.getNumAttemptedMeasurements());
                 }
             }
             if (file != null)
@@ -261,10 +253,6 @@ public class WifiModule {
         long curr_time_ms = elapsedRealtime();
         int sleep_time_ms = 50;
         if (clear_to_scan) {                 // start new scan
-//            last_scan_init_time_ms = elapsedRealtime();
-//            is_scan_time_exceed_max_time = false;
-//            clear_to_scan = false;
-
             // RSS scan
             if (flag_collect_rss_data && (curr_time_ms - last_scan_init_time_ms) >= target_rss_scan_interval_ms) {
                 if (wifiManager.startScan()) {
@@ -346,8 +334,6 @@ public class WifiModule {
 
     private void loadSettings(){
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mActivity);
-        SharedPreferences.Editor editor = pref.edit();
-
         flag_collect_rss_data = pref.getBoolean("option_collect_rss", true);
         flag_collect_rtt_data = pref.getBoolean("option_collect_rtt", false);
         target_rss_scan_interval_ms = Float.parseFloat(pref.getString("option_rss_interval", "0"));

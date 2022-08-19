@@ -64,6 +64,10 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
             Toast.makeText(getApplicationContext(), "Measurement is running. Please stop before navigating to another page", Toast.LENGTH_SHORT).show();
             return false;
         }
+        if (active_fragment_idx == 2 && serverFragment.flag_measurement_running){
+            Toast.makeText(getApplicationContext(), "Measurement is running. Please stop before navigating to another page", Toast.LENGTH_SHORT).show();
+            return false;
+        }
         if (active_fragment_idx == 3 && sensorFragment.flag_measurement_running){
             Toast.makeText(getApplicationContext(), "Measurement is running. Please stop before navigating to another page", Toast.LENGTH_SHORT).show();
             return false;

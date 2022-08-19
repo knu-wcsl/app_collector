@@ -1,8 +1,14 @@
 package icsl.apps.collector;
 
 import android.app.Activity;
+import android.util.Log;
+import android.widget.Toast;
+
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -13,23 +19,24 @@ public class WifiAPManager {
     private ArrayList<APInfo> aplist = new ArrayList<>();
 
     ArrayList<String> init_result = new ArrayList<>();
-    private final String ftmr_filename = "ftmr_list.txt";
+    private String filename;
     private final int mac_addr_len = 17; // 00:00:00:00:00:00
 
     private ArrayList<String> freq_change_list = new ArrayList<>();
 
-    WifiAPManager(Activity activity) {
+    public WifiAPManager(Activity activity, String _filename, boolean flag_create_if_not_exist) {
         mActivity = activity;
-        String line = null;
-//        File folder = new File(mActivity.getApplicationContext().getExternalFilesDir(null), "");
-//        File file = new File(folder, ftmr_filename);
+        filename = _filename;
+        File folder = new File(mActivity.getApplicationContext().getExternalFilesDir(null), "");
+        File file = new File(folder, filename);
+        if (!file.exists() && flag_create_if_not_exist){
+            create_file(file);
+        }
         try {
-            InputStream inputStream = null;
-//            inputStream = new FileInputStream(file);
-            inputStream = mActivity.getApplicationContext().getAssets().open(ftmr_filename);
-
+            InputStream inputStream = new FileInputStream(file);
             InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            String line;
 
             while ((line = bufferedReader.readLine()) != null) {
                 if (line.length() < 2)
@@ -37,22 +44,37 @@ public class WifiAPManager {
                 if (line.substring(0, 2).equals("##"))
                     continue;
                 if (!add_access_point(line))
-                    init_result.add(String.format("[Warning] Can not decode \"%s\" line in \"%s\" file", line, ftmr_filename));
+                    init_result.add(String.format("[Warning] Can not decode \"%s\" line in \"%s\" file", line, filename));
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            init_result.add(String.format("[Warning] Unable to find \"%s\" file. Please put this file in assets folder to manually load FTMR list for RTT measurement", ftmr_filename));
         } catch (IOException e) {
             e.printStackTrace();
         }
-        init_result.add(String.format("Loaded %d FTMR(s) from \"%s\" file", aplist.size(), ftmr_filename));
+        init_result.add(String.format("Loaded %d FTMR(s) from \"%s\" file", aplist.size(), filename));
     }
 
+    private void create_file(File file){
+        Log.d("FILE", "CREATE");
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(file, false);
+            fos.write("## FTMR list\n".getBytes());
+            fos.write("## (line starting with ## will be ignored)\n".getBytes());
+            fos.write("## GroupID,  SSID,  mac address,  frequency[MHz]\n".getBytes());
+            fos.write("icsl, icsl_rtt_testbed, 28:bd:89:c3:01:7f, 5745\n".getBytes());
+            fos.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Toast.makeText(mActivity.getApplicationContext(), String.format("%s file created", filename), Toast.LENGTH_SHORT).show();
+    }
 
     public ArrayList<String> get_init_result(){
         return init_result;
     }
-
 
     public boolean update_freq(String mac, int _freq, String _SSID){
         for (int k=0; k<aplist.size(); k++) {
@@ -114,7 +136,7 @@ public class WifiAPManager {
 
     private boolean add_access_point(String line){
         String[] items = line.split(", ");
-        if (items.length != 4)
+        if (items.length < 4)
             return false;
         String group = items[0];
         String name = items[1];
@@ -125,10 +147,12 @@ public class WifiAPManager {
         if (mac.length() != mac_addr_len)
             return false;
 
-        aplist.add(new APInfo(group, name, mac, freq));
+        if (items.length == 4)
+            aplist.add(new APInfo(group, name, mac, freq));
+        else
+            aplist.add(new APInfo(group, name, mac, freq, Boolean.getBoolean(items[5])));
         return true;
     }
-
 
     // class for AP information
     class APInfo {
@@ -136,14 +160,23 @@ public class WifiAPManager {
         public String name;
         public String mac_addr;
         public int freq;
+        public boolean flag_official;
         public boolean is_active = false;
         public String SSID = "";
 
-        APInfo(String _group, String _name, String _mac_addr, int _freq) {
+        public APInfo(String _group, String _name, String _mac_addr, int _freq) {
             group = _group;
             name = _name;
             mac_addr = _mac_addr;
             freq = _freq;
+        }
+
+        public APInfo(String _group, String _name, String _mac_addr, int _freq, boolean _flag_official){
+            group = _group;
+            name = _name;
+            mac_addr = _mac_addr;
+            freq = _freq;
+            flag_official = _flag_official;
         }
     }
 }

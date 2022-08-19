@@ -4,6 +4,10 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Sync/AndroidStudioProjects/app_collector/app/src/main/res/drawable-anydpi/ic_action_sensor.xml" value="0.1" />
+        <entry key="..\:/Sync/AndroidStudioProjects/app_collector/app/src/main/res/drawable-anydpi/ic_home.xml" value="0.1885" />
+        <entry key="..\:/Sync/AndroidStudioProjects/app_collector/app/src/main/res/drawable-anydpi/ic_setting.xml" value="0.1885" />
+        <entry key="..\:/Sync/AndroidStudioProjects/app_collector/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.128" />
+        <entry key="..\:/Sync/AndroidStudioProjects/app_collector/app/src/main/res/drawable/ic_launcher_background.xml" value="0.128" />
         <entry key="..\:/Sync/AndroidStudioProjects/app_collector/app/src/main/res/drawable/selector_bottom_navi_home.xml" value="0.1" />
         <entry key="..\:/Sync/AndroidStudioProjects/app_collector/app/src/main/res/drawable/selector_bottom_navi_server.xml" value="0.1" />
         <entry key="..\:/Sync/AndroidStudioProjects/app_collector/app/src/main/res/layout/activity_main.xml" value="0.1" />

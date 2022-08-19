@@ -24,7 +24,7 @@
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="000000" />
-                                                <entry key="imagePath" value="C:\Users\Jeongsik\AppData\Local\Temp\baseline_screen_rotation_24.xml" />
+                                                <entry key="imagePath" value="C:\Users\Jeongsik\AppData\Local\Temp\baseline_upload_file_24.xml" />
                                                 <entry key="opacityPercent" value="60" />
                                               </map>
                                             </option>
@@ -36,7 +36,7 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
-                                                <entry key="url" value="file:/$USER_HOME$/AppData/Local/Android/Sdk/icons/material/materialicons/screen_rotation/baseline_screen_rotation_24.xml" />
+                                                <entry key="url" value="file:/$USER_HOME$/AppData/Local/Android/Sdk/icons/material/materialicons/upload_file/baseline_upload_file_24.xml" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -68,7 +68,7 @@
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="outputName" value="ic_sensor" />
+                                      <entry key="outputName" value="ic_upload" />
                                     </map>
                                   </option>
                                 </PersistentState>

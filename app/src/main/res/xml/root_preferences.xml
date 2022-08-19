@@ -83,4 +83,14 @@
             app:title="Screen Refresh Rate"
             app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
+
+    <EditTextPreference
+        app:defaultValue=""
+        app:key="option_host"
+        app:isPreferenceVisible="false"/>
+    <EditTextPreference
+        app:defaultValue="0"
+        app:key="option_port"
+        app:isPreferenceVisible="false"/>
+
 </PreferenceScreen>
