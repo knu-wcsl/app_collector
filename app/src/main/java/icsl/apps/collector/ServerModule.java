@@ -1,6 +1,5 @@
 package icsl.apps.collector;
 
-import static android.os.SystemClock.elapsedRealtime;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -16,8 +15,8 @@ import androidx.preference.PreferenceManager;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.sql.Time;
 import java.util.Calendar;
 
 public class ServerModule {
@@ -57,7 +56,8 @@ public class ServerModule {
             @Override
             public void run() {
                 try {
-                    socket = new Socket(host, port);
+                    socket = new Socket();
+                    socket.connect(new InetSocketAddress(host, port), 1000);
                     is = new DataInputStream(socket.getInputStream());
                     os = new DataOutputStream(socket.getOutputStream());
 

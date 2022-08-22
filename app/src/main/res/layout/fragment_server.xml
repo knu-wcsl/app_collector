@@ -13,7 +13,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:text="[Server] Collect sensor data synchronized with server time. Connect to the server first. (No wifi data will be collected)"
+        android:text="[Server] This page is for collecting sensor data synchronized to server time. Wifi data are not collected."
         android:textAppearance="@style/TextAppearance.AppCompat.Small"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
