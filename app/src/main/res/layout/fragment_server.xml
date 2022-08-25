@@ -9,13 +9,11 @@
     <TextView
         android:id="@+id/tv_s4"
         android:layout_width="0dp"
-        android:layout_height="36dp"
+        android:layout_height="18dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:text="[Server] This page is for collecting sensor data synchronized to server time. Wifi data are not collected."
+        android:text="CSI sensing page"
         android:textAppearance="@style/TextAppearance.AppCompat.Small"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -40,11 +38,31 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_host" />
 
+    <TextView
+        android:id="@+id/tv_ch"
+        android:layout_width="38dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="8dp"
+        android:gravity="center_vertical"
+        android:text="Ch"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_port" />
+
+    <TextView
+        android:id="@+id/tv_ch2"
+        android:layout_width="38dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="12dp"
+        android:gravity="center_vertical"
+        android:text="BW"
+        app:layout_constraintStart_toEndOf="@+id/et_ch"
+        app:layout_constraintTop_toBottomOf="@+id/et_port" />
+
     <EditText
         android:id="@+id/et_host"
         android:layout_width="0dp"
         android:layout_height="40dp"
-        android:layout_marginStart="24dp"
+        android:layout_marginStart="12dp"
         android:layout_marginEnd="32dp"
         android:ems="10"
         android:inputType="textPersonName"
@@ -57,7 +75,7 @@
         android:id="@+id/et_port"
         android:layout_width="0dp"
         android:layout_height="40dp"
-        android:layout_marginStart="24dp"
+        android:layout_marginStart="12dp"
         android:layout_marginEnd="32dp"
         android:ems="10"
         android:inputType="numberDecimal"
@@ -66,15 +84,53 @@
         app:layout_constraintStart_toEndOf="@+id/tv_port"
         app:layout_constraintTop_toBottomOf="@+id/et_host" />
 
+    <EditText
+        android:id="@+id/et_ch"
+        android:layout_width="64dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="12dp"
+        android:ems="10"
+        android:inputType="numberDecimal"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        app:layout_constraintStart_toEndOf="@+id/tv_port"
+        app:layout_constraintTop_toBottomOf="@+id/et_port" />
+
+    <EditText
+        android:id="@+id/et_bw"
+        android:layout_width="64dp"
+        android:layout_height="36dp"
+        android:ems="10"
+        android:inputType="numberDecimal"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        app:layout_constraintStart_toEndOf="@+id/tv_ch2"
+        app:layout_constraintTop_toBottomOf="@+id/et_port" />
+
     <Button
         android:id="@+id/btn_s3"
-        android:layout_width="wrap_content"
+        android:layout_width="120dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:layout_marginEnd="24dp"
+        android:layout_marginEnd="8dp"
         android:text="Connect"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_s4" />
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btn_s4"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:text="CSI INIT"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_s3" />
+
+    <Button
+        android:id="@+id/btn_s5"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:text="CSI STOP"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_s4" />
 
     <Button
         android:id="@+id/btn_s"
@@ -107,7 +163,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/et_port">
+        app:layout_constraintTop_toBottomOf="@+id/et_ch">
 
         <LinearLayout
             android:layout_width="match_parent"

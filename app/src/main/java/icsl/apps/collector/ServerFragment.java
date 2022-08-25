@@ -34,8 +34,8 @@ public class ServerFragment extends Fragment implements MeasurementListener {
     private long server_time_offset_ms = 0;
 
     // Layout
-    private EditText et, et2;
-    private Button btn, btn2, btn3;
+    private EditText et, et2, et3, et4;
+    private Button btn, btn2, btn3, btn4, btn5;
     private TextView tv, tv2, tv3;
     private String str_server, str_sensor, str_log;
     private String str_setting_sensor;
@@ -68,10 +68,14 @@ public class ServerFragment extends Fragment implements MeasurementListener {
         // Layout
         et = (EditText) v.findViewById(R.id.et_host);
         et2 = (EditText) v.findViewById(R.id.et_port);
+        et3 = (EditText) v.findViewById(R.id.et_ch);
+        et4 = (EditText) v.findViewById(R.id.et_bw);
 
         btn = (Button) v.findViewById(R.id.btn_s);
         btn2 = (Button) v.findViewById(R.id.btn_s2);
         btn3 = (Button) v.findViewById(R.id.btn_s3);
+        btn4 = (Button) v.findViewById(R.id.btn_s4);
+        btn5 = (Button) v.findViewById(R.id.btn_s5);
 
         tv = (TextView) v.findViewById(R.id.tv_s);
         tv2 = (TextView) v.findViewById(R.id.tv_s2);
@@ -83,7 +87,13 @@ public class ServerFragment extends Fragment implements MeasurementListener {
         int port = Integer.parseInt(pref.getString("option_port", "0"));
         et.setText(host);
         if (port > 0)
-            et2.setText(String.valueOf((port)));
+            et2.setText(String.valueOf(port));
+        int ch = Integer.parseInt(pref.getString("option_channel", "1"));
+        if (ch > 0)
+            et3.setText(String.valueOf(ch));
+        int bw = Integer.parseInt(pref.getString("option_bandwidth", "20"));
+        if (bw > 0)
+            et4.setText(String.valueOf(bw));
 
         // Initialize log
         add_log("-------- Initialization --------", true);
@@ -123,6 +133,32 @@ public class ServerFragment extends Fragment implements MeasurementListener {
                 }
             }
         });
+
+        btn4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!flag_connected)
+                    Toast.makeText(getContext(), "This button works when connected to server", Toast.LENGTH_SHORT).show();
+                else {
+                    try {
+                        serverModule.send_start_csi_msg(Integer.parseInt(et3.getText().toString()), Integer.parseInt(et4.getText().toString()));
+                    } catch (NumberFormatException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+
+        btn5.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!flag_connected)
+                    Toast.makeText(getContext(), "This button works when connected to server", Toast.LENGTH_SHORT).show();
+                else
+                    serverModule.send_stop_csi_msg();
+            }
+        });
+
         return v;
     }
 

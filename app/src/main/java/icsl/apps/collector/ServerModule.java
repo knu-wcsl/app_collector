@@ -15,9 +15,13 @@ import androidx.preference.PreferenceManager;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class ServerModule {
     private String TAG = "SERVER_MODULE";
@@ -33,6 +37,7 @@ public class ServerModule {
     private DataOutputStream os;
 
     // Thread
+    Lock lock = new ReentrantLock();
     private Looper thread_looper;
 
     // Key
@@ -137,15 +142,56 @@ public class ServerModule {
         }
     }
 
+    public void send_start_csi_msg(int ch, int bw){
+        if (bw != 20 && bw != 40 && bw != 80)
+            mListener.log_msg(String.format("Invalid bandwidth: %d", bw));
+        else {
+            Handler handler = new Handler(thread_looper);
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    lock.lock();
+                    try {
+                        os.write(String.format("CMD_START_CSI, %d, %d", ch, bw).getBytes());
+                        String status = get_msg_from_server();
+                        mListener.log_msg("Server: " + status);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    lock.unlock();
+                }
+            }, 0);
+        }
+    }
+
+    public void send_stop_csi_msg(){
+        Handler handler = new Handler(thread_looper);
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                lock.lock();
+                try {
+                    os.write("CMD_STOP_CSI".getBytes());
+                    String status = get_msg_from_server();
+                    mListener.log_msg("Server: " + status);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                lock.unlock();
+            }
+        }, 0);
+    }
+
     public void run_server_status_checker(){
         int refresh_interval_ms = 1000;
-        if (!flag_connected){
+        if (!flag_connected)
             return;
-        }
 
         try {
+            lock.lock();
             os.write("CMD_STATUS".getBytes());
             String status = get_msg_from_server();
+            lock.unlock();
             mListener.server_status(status, MeasurementListener.TYPE_SERVER_STATUS);
         } catch (IOException e) {
             e.printStackTrace();

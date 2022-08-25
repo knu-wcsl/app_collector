@@ -92,5 +92,13 @@
         app:defaultValue="0"
         app:key="option_port"
         app:isPreferenceVisible="false"/>
+    <EditTextPreference
+        app:defaultValue="1"
+        app:key="option_channel"
+        app:isPreferenceVisible="false"/>
+    <EditTextPreference
+        app:defaultValue="20"
+        app:key="option_bandwidth"
+        app:isPreferenceVisible="false"/>
 
 </PreferenceScreen>
