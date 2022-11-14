@@ -180,7 +180,7 @@ public class ServerFragment extends Fragment implements MeasurementListener {
         long curr_server_time_ms = Calendar.getInstance().getTimeInMillis() + server_time_offset_ms;
 
         check_point_counter = 0;
-        file = new FileModule(getActivity(), String.format("server_%d", curr_server_time_ms), true, true, ".txt");
+        file = new FileModule(getActivity(), String.format("sensor_%d", curr_server_time_ms), true, true, ".txt");
 
         flag_measurement_running = true;
         btn.setText("Stop");
