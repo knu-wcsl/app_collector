@@ -324,6 +324,16 @@ public class WifiModule {
         flag_is_wifi_running = false;
      }
 
+     public void register_receiver(){
+        try{
+            IntentFilter intentFilter = new IntentFilter();
+            intentFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
+            mActivity.getApplicationContext().registerReceiver(wifiReceiver, intentFilter);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+     }
+
      public void unregister_receiver(){
         try{
             mActivity.getApplicationContext().unregisterReceiver(wifiReceiver);

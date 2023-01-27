@@ -133,6 +133,8 @@ public class HomeFragment extends Fragment implements MeasurementListener{
         sensorModule.stop_measurement();
         wifiModule.stop_measurement();
         add_log("Saved file:" + file.get_filename(), false);
+        last_status_wifi = "";
+        last_status_sensor = "";
 
         // restore screen off setting
         getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -185,6 +187,12 @@ public class HomeFragment extends Fragment implements MeasurementListener{
     public void onStop() {
         super.onStop();
         wifiModule.unregister_receiver();
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        wifiModule.register_receiver();
     }
 
     @Override
