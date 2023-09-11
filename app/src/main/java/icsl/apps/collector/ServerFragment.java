@@ -319,4 +319,9 @@ public class ServerFragment extends Fragment implements MeasurementListener {
             }
         }
     }
+
+    @Override
+    public void ble_status(String status, int type) {
+
+    }
 }

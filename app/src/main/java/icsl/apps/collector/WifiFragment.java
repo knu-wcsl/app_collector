@@ -104,4 +104,9 @@ public class WifiFragment extends Fragment implements MeasurementListener{
     public void server_status(String status, int type) {
 
     }
+
+    @Override
+    public void ble_status(String status, int type) {
+
+    }
 }

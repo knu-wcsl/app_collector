@@ -11,10 +11,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
-import android.hardware.Sensor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -31,7 +33,9 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     private ServerFragment serverFragment;
     private WifiFragment wifiFragment;
     private SensorFragment sensorFragment;
+    private BLEFragment bleFragment;
     private SettingsFragment settingFragment;
+    private ImageButton btn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,11 +50,20 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         serverFragment = new ServerFragment();
         wifiFragment = new WifiFragment();
         sensorFragment = new SensorFragment();
+        bleFragment = new BLEFragment();
         settingFragment = new SettingsFragment();
 
         // Navigation view
         bottomNavigationView = findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setOnNavigationItemSelectedListener(this);
+
+        btn = findViewById(R.id.btn_setting);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getSupportFragmentManager().beginTransaction().replace(R.id.container, settingFragment).commit();
+            }
+        });
     }
 
     @Override
@@ -94,10 +107,15 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 active_fragment_idx = 3;
                 return true;
 
-            case R.id.settings:
-                getSupportFragmentManager().beginTransaction().replace(R.id.container, settingFragment).commit();
+            case R.id.ble:
+                getSupportFragmentManager().beginTransaction().replace(R.id.container, bleFragment).commit();
                 active_fragment_idx = 4;
                 return true;
+
+//            case R.id.settings:
+//                getSupportFragmentManager().beginTransaction().replace(R.id.container, settingFragment).commit();
+//                active_fragment_idx = 4;
+//                return true;
         }
         return false;
     }

@@ -235,6 +235,11 @@ public class HomeFragment extends Fragment implements MeasurementListener{
 
     }
 
+    @Override
+    public void ble_status(String status, int type) {
+
+    }
+
     public void update_display(){
         int elapsed_app_time_s = (int) (elapsedRealtime()/1e3 - measurement_start_time_ms/1e3);
         int time_since_last_wifi_status_s = (int) (elapsedRealtime()/1e3 - last_wifi_status_update_time_ms/1e3);

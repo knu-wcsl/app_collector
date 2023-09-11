@@ -20,7 +20,12 @@
         android:icon="@drawable/ic_sensor"/>
 
     <item
-        android:id="@+id/settings"
-        android:title="Settings"
-        android:icon="@drawable/ic_setting"/>
+        android:id="@+id/ble"
+        android:title="BLE"
+        android:icon="@drawable/ic_ble"/>
+
+<!--    <item-->
+<!--        android:id="@+id/settings"-->
+<!--        android:title="Settings"-->
+<!--        android:icon="@drawable/ic_setting"/>-->
 </menu>

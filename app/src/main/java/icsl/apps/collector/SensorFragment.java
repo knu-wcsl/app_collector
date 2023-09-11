@@ -93,6 +93,11 @@ public class SensorFragment extends Fragment implements MeasurementListener {
     }
 
     @Override
+    public void ble_status(String status, int type) {
+
+    }
+
+    @Override
     public void sensor_status(String status, int type){
         String str_out = "";
         if (type == MeasurementListener.TYPE_INIT_SUCCESS || type == MeasurementListener.TYPE_INIT_FAILED){

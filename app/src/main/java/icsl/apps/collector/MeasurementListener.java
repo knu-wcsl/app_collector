@@ -15,9 +15,12 @@ public interface MeasurementListener {
     public static final int TYPE_SERVER_DISCONNECTED = 9;
     public static final int TYPE_SERVER_STATUS = 10;
     public static final int TYPE_SERVER_SYNC = 11;
+    public static final int TYPE_BLE_STATUS = 12;
+    public static final int TYPE_BLE_VALUE = 13;
 
     public void log_msg(String log);
     public void sensor_status(String status, int type);
     public void wifi_status(String status, int type);
     public void server_status(String status, int type);
+    public void ble_status(String status, int type);
 }
