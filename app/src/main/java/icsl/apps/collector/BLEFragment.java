@@ -7,6 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -18,14 +20,17 @@ public class BLEFragment extends Fragment implements MeasurementListener{
 
     // Status
     public boolean flag_measurement_running = false;
+    public boolean flag_save_file = false;
     private long measurement_start_time_ms = 0;
     private String str_setting;
     private String str_status;
     private String str_value;
 
     // Layout
-    private TextView tv;
+    private TextView tv1;
+    private TextView tv2;
     private Button btn;
+    private Switch sw;
     // Ble module
     private BLEModule bleModule;
     private FileModule file;
@@ -42,10 +47,12 @@ public class BLEFragment extends Fragment implements MeasurementListener{
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_ble, container, false);
-//        tv = (TextView) v.findViewById(R.id.tv_ble);
-//        tv.setText("[BLE test]\nSensor data will not be stored in a file");
+        tv1 = v.findViewById(R.id.tv_ble1);
+        tv1.setText("[BLE test]\nSensor data will not be stored in a file");
+        tv2 = v.findViewById(R.id.tv_ble2);
+        tv2.setText("[BLE measurement]");
 
-        btn = (Button) v.findViewById(R.id.btn_ble);
+        btn = v.findViewById(R.id.btn_ble);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -55,13 +62,30 @@ public class BLEFragment extends Fragment implements MeasurementListener{
                     start();
             }
         });
-        file = new FileModule(getActivity(), "BLE",true,true,".txt");
+        sw = v.findViewById(R.id.sw_ble);
+        sw.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (isChecked) {
+                    flag_save_file = true;
+                    tv1.setText("[BLE test]\nSensor data will be stored in a file");
+                }
+                else {
+                    flag_save_file = false;
+                    tv1.setText("[BLE test]\nSensor data will not be stored in a file");
+                }
+            }
+        });
+
         bleModule = new BLEModule(getActivity(), this);
         return v;
     }
 
     private void start() {
         measurement_start_time_ms = elapsedRealtime();
+        if (flag_save_file) {
+            file = new FileModule(getActivity(), "BLE",true,true,".txt");
+        }
         if (bleModule.start_measurement(measurement_start_time_ms, file)) {  // Success to start measurement
             btn.setText("Stop");
             flag_measurement_running = true;
@@ -102,13 +126,15 @@ public class BLEFragment extends Fragment implements MeasurementListener{
             str_setting = "[BLE test]\nMeasurement data are not saved in a file\n\n" + status;
 //            tv.setText(str_setting);
         }
-        else if (type == MeasurementListener.TYPE_BLE_STATUS)
+        else if (type == MeasurementListener.TYPE_BLE_STATUS) {
             str_status = status;
+            tv2.setText("[BLE measurement]\n" + str_status);
+        }
         else if (type == MeasurementListener.TYPE_BLE_VALUE){
             str_value = status;
-            str_out = String.format("[BLE test]\n Measurement is running (elapsed time: %.2f s)", (elapsedRealtime() - measurement_start_time_ms) / 1e3);
+            str_out = String.format("[BLE measurement]\n Measurement is running (elapsed time: %.2f s)", (elapsedRealtime() - measurement_start_time_ms) / 1e3);
             str_out += "\n\n" + str_status + "\n\n" + str_value;
-//            tv.setText(str_out);
+            tv2.setText(str_out);
         }
     }
 }
