@@ -8,6 +8,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanRecord;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.util.Log;
@@ -46,9 +47,13 @@ public class BLEModule {
         scanCallback = new ScanCallback() {
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
-
+                super.onScanResult(callbackType, result);
+                ScanRecord scanRecord = result.getScanRecord();
+                Log.d(TAG,"getTxPowerLevel: " + scanRecord.getTxPowerLevel());
+                Log.d(TAG, "onScanResult: " + result.getDevice().getAddress() + ", " + result.getDevice().getName() + ", " + result.getRssi());
+                Log.d(TAG, result.toString());
             }
-        }
+        };
     }
 
     public boolean start_measurement(long start_time_ms, FileModule _file) {
@@ -58,6 +63,7 @@ public class BLEModule {
             return false;
         }
         measurement_start_time_ms = start_time_ms;
+//        bluetoothAdapter.startLeScan(leScanCallback);
         bleScanner.startScan(scanCallback);
 
         flag_is_ble_running = true;
@@ -65,7 +71,8 @@ public class BLEModule {
     }
 
     public void stop_measurement() {
-        bluetoothAdapter.stopLeScan(leScanCallback);
+//        bluetoothAdapter.stopLeScan(leScanCallback);
+        bleScanner.stopScan(scanCallback);
         flag_is_ble_running = false;
     }
 }
