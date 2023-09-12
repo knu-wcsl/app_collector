@@ -23,13 +23,15 @@ public class HomeFragment extends Fragment implements MeasurementListener{
     // Measurement setting
     private String str_setting_sensor;
     private String str_setting_wifi;
+    private String str_setting_ble;
     private boolean flag_collect_sensor_data = false;
     private boolean flag_collect_wifi_data = false;
-
+    private boolean flag_collect_ble_data = false;
     // Measurement status
     private long measurement_start_time_ms = 0;
     private String last_status_sensor = "";
     private String last_status_wifi = "";
+    private String last_status_ble = "";
     private long last_wifi_status_update_time_ms;
 
     // Layout
@@ -41,6 +43,7 @@ public class HomeFragment extends Fragment implements MeasurementListener{
     // Measurement module;
     private SensorModule sensorModule;
     private WifiModule wifiModule;
+    private BLEModule bleModule;
     private FileModule file;
 
     // Checkpoint
@@ -70,7 +73,7 @@ public class HomeFragment extends Fragment implements MeasurementListener{
         // Load modules
         wifiModule = new WifiModule(getActivity(), this);
         sensorModule = new SensorModule(getActivity(), this);
-
+        bleModule = new BLEModule(getActivity(), this);
         // Button
         btn = (Button) v.findViewById(R.id.btn);
         btn.setOnClickListener(new View.OnClickListener(){
@@ -98,8 +101,8 @@ public class HomeFragment extends Fragment implements MeasurementListener{
     }
 
     private void start() {
-        if (!flag_collect_wifi_data && !flag_collect_sensor_data) {
-            Toast.makeText(getContext(), "Both sensor and WiFi measurements are disabled", Toast.LENGTH_LONG).show();
+        if (!flag_collect_wifi_data && !flag_collect_sensor_data && !flag_collect_ble_data) {
+            Toast.makeText(getContext(), "Sensor, WiFi and BLE measurements are disabled", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -119,7 +122,8 @@ public class HomeFragment extends Fragment implements MeasurementListener{
             wifiModule.start_measurement(measurement_start_time_ms, file);
         if (flag_collect_sensor_data)
             sensorModule.start_measurement(measurement_start_time_ms, file);
-
+        if (flag_collect_ble_data)
+            bleModule.start_measurement(measurement_start_time_ms, file);
         // prevent screen off during location tracking
         getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
@@ -132,8 +136,10 @@ public class HomeFragment extends Fragment implements MeasurementListener{
         // stop all measurements
         sensorModule.stop_measurement();
         wifiModule.stop_measurement();
+        bleModule.stop_measurement();
         add_log("Saved file:" + file.get_filename(), false);
         last_status_wifi = "";
+        last_status_ble = "";
         last_status_sensor = "";
 
         // restore screen off setting
@@ -237,7 +243,10 @@ public class HomeFragment extends Fragment implements MeasurementListener{
 
     @Override
     public void ble_status(String status, int type) {
-
+        if (type == MeasurementListener.TYPE_BLE_STATUS) {
+            last_status_ble = status;
+            update_display();
+        }
     }
 
     public void update_display(){
@@ -246,9 +255,10 @@ public class HomeFragment extends Fragment implements MeasurementListener{
 
         String result_str = String.format("[Measurement] Elapsed time: %02d:%02d\n", elapsed_app_time_s / 60, elapsed_app_time_s % 60);
         if (time_since_last_wifi_status_s > 5)
-            result_str += "[Wifi] " + last_status_wifi + String.format(" (since last scan: %d s)", time_since_last_wifi_status_s) + "\n[Sensor] " + last_status_sensor;
+            result_str += "[Wifi] " + last_status_wifi + String.format(" (since last scan: %d s)", time_since_last_wifi_status_s)
+                        + "\n[Sensor] " + last_status_sensor + "\n[BLE] " + last_status_ble;
         else
-            result_str += "[Wifi] " + last_status_wifi + "\n[Sensor] " + last_status_sensor;
+            result_str += "[Wifi] " + last_status_wifi + "\n[Sensor] " + last_status_sensor + "\n[BLE] " + last_status_ble;
         tv.setText(result_str);
     }
 }

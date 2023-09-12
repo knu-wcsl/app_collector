@@ -25,6 +25,7 @@ public class BLEModule {
     private int count;
     private int count_iBeacon;
     private int count_Eddystone;
+    private String last_ble_value;
     private Activity mActivity;
     private MeasurementListener mListener;
     private FileModule file;
@@ -59,44 +60,36 @@ public class BLEModule {
                 super.onScanResult(callbackType, result);
                 float elapsed_app_time_s = (float) (elapsedRealtime() / 1e3 - measurement_start_time_ms / 1e3);
                 ScanRecord scanRecord = result.getScanRecord();
-                String scanResult = null;
-//                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-//                    scanResult = "BLE4;" + elapsed_app_time_s + ";" + result.getDevice().getAddress() + "; "
-//                                        + result.getDevice().getName() + "; " + result.getRssi() + "; " + result.getTxPower() + ";"
-//                                        + result.getAdvertisingSid() + "\n    ";
-//                }
-//                Log.d(TAG,"getTxPowerLevel: " + scanRecord.getTxPowerLevel());
-//                Log.d(TAG, scanRecord.getManufacturerSpecificData().get(0X004C));
-//                Log.d(TAG,result.toString());
+//                String scanResult;
                 SparseArray<byte[]> manufactureData =  scanRecord.getManufacturerSpecificData();
                 if (manufactureData.size() != 0 && manufactureData.keyAt(0) == 0X4C) {
                     count_iBeacon++;
-                    scanResult = "BLE4;" + elapsed_app_time_s + ";" + result.getDevice().getAddress() + "; "
+                    last_ble_value = "BLE4;" + elapsed_app_time_s + ";" + result.getDevice().getAddress() + "; "
                             + "iBeacon;" + result.getDevice().getName() + "; " + result.getRssi() + ";" + manufactureData.toString() + ";\n";
 //                    Log.d(TAG, scanResult);
-                    mListener.ble_status(String.format("Count: %d\t\tiBecon count %d\t\tEddyStone count %d",count, count_iBeacon, count_Eddystone), MeasurementListener.TYPE_BLE_STATUS);
-                    mListener.ble_status(scanResult, MeasurementListener.TYPE_BLE_VALUE);
-//                    String str_manu = "";
-//                    for (int i=0; i<manufactureData.size(); i++)
-//                        str_manu += Integer.toString(manufactureData.keyAt(i)) + " / ";
-//                    Log.d(TAG,str_manu);
                 }
                 if (scanRecord.getServiceUuids() != null) {
                     String uuids = "";
                     for (int i=0; i<scanRecord.getServiceUuids().size(); i++) {
                         uuids += scanRecord.getServiceUuids().get(i).toString() + " / ";
                     }
-                    if (scanRecord.getServiceUuids().get(0).toString() == "0000FEAA-0000–1000–8000–00805F9B34FB")
+                    if (scanRecord.getServiceUuids().get(0).toString().equals("0000FEAA-0000–1000–8000–00805F9B34FB"))
                         count_Eddystone++;
-                    Log.d(TAG,uuids);
+//                    Log.d(TAG,uuids);
                 }
+                String str_status = String.format("Count: %d\t\tiBecon count %d\t\tEddyStone count %d",count, count_iBeacon, count_Eddystone);
+                mListener.ble_status(str_status, MeasurementListener.TYPE_BLE_STATUS);
+//                if (scanResult != null)
+                mListener.ble_status(last_ble_value, MeasurementListener.TYPE_BLE_VALUE);
                 if (file != null)
                     file.save_str_to_file(scanRecord + result.getDevice().getAddress() + "\n");
-//                if ()
             }
             @Override
             public void onBatchScanResults(List<ScanResult> results) {
                 super.onBatchScanResults(results);
+                for (int i=0; i<results.size(); i++) {
+                    Log.d(TAG, results.get(i).toString());
+                }
             }
             @Override
             public void onScanFailed(int errorCode) {
@@ -112,13 +105,12 @@ public class BLEModule {
             return false;
         }
         measurement_start_time_ms = start_time_ms;
-
 //        bluetoothAdapter.startLeScan(leScanCallback);
         count = 0;
         count_iBeacon = 0;
         count_Eddystone = 0;
+        last_ble_value = "";
         bleScanner.startScan(scanCallback);
-
         flag_is_ble_running = true;
         return true;
     }
