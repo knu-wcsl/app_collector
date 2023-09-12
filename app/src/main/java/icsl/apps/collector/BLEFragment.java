@@ -86,6 +86,8 @@ public class BLEFragment extends Fragment implements MeasurementListener{
         if (flag_save_file) {
             file = new FileModule(getActivity(), "BLE",true,true,".txt");
         }
+        else
+            file = null;
         if (bleModule.start_measurement(measurement_start_time_ms, file)) {  // Success to start measurement
             btn.setText("Stop");
             flag_measurement_running = true;

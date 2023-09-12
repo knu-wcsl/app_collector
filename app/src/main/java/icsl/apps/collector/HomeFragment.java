@@ -101,7 +101,7 @@ public class HomeFragment extends Fragment implements MeasurementListener{
     }
 
     private void start() {
-        if (!flag_collect_wifi_data && !flag_collect_sensor_data && !flag_collect_ble_data) {
+        if (!flag_collect_wifi_data && !flag_collect_sensor_data) {
             Toast.makeText(getContext(), "Sensor, WiFi and BLE measurements are disabled", Toast.LENGTH_LONG).show();
             return;
         }
@@ -122,8 +122,8 @@ public class HomeFragment extends Fragment implements MeasurementListener{
             wifiModule.start_measurement(measurement_start_time_ms, file);
         if (flag_collect_sensor_data)
             sensorModule.start_measurement(measurement_start_time_ms, file);
-        if (flag_collect_ble_data)
-            bleModule.start_measurement(measurement_start_time_ms, file);
+//        if (flag_collect_ble_data)
+        bleModule.start_measurement(measurement_start_time_ms, file);
         // prevent screen off during location tracking
         getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }

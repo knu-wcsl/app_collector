@@ -80,9 +80,11 @@ public class BLEModule {
                 String str_status = String.format("Count: %d\t\tiBecon count %d\t\tEddyStone count %d",count, count_iBeacon, count_Eddystone);
                 mListener.ble_status(str_status, MeasurementListener.TYPE_BLE_STATUS);
 //                if (scanResult != null)
-                mListener.ble_status(last_ble_value, MeasurementListener.TYPE_BLE_VALUE);
-                if (file != null)
-                    file.save_str_to_file(scanRecord + result.getDevice().getAddress() + "\n");
+                mListener.ble_status(scanRecord + result.getDevice().getAddress() + "\n", MeasurementListener.TYPE_BLE_VALUE);
+                if (file != null) {
+//                    Log.d(TAG, "Im ble save!");
+                    file.save_str_to_file(last_ble_value + "\n");
+                }
             }
             @Override
             public void onBatchScanResults(List<ScanResult> results) {
