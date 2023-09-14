@@ -12,6 +12,7 @@ import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanRecord;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 import android.util.SparseArray;
 import android.widget.Toast;
@@ -67,7 +68,7 @@ public class BLEModule {
                         int major_ID = Integer.parseInt(bytes_to_hex_string(arr_major_ID));
                         int minor_ID = Integer.parseInt(bytes_to_hex_string(arr_minor_ID));
                         curr_ble_value = String.format("BLE4, %f, iBeacon, %s, %d, %d, %d, %d, %s",elapsed_app_time_s, result.getDevice().getAddress()
-                                                        , result.getRssi(),scanRecord.getTxPowerLevel(),major_ID,minor_ID,uuid);
+                                , result.getRssi(), scanRecord.getTxPowerLevel(), major_ID, minor_ID, uuid);
                     }
 //                    if (scanRecord.getServiceUuids() != null) {
 //                        String uuids = "";
