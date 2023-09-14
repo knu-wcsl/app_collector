@@ -33,6 +33,7 @@ public class HomeFragment extends Fragment implements MeasurementListener{
     private String last_status_wifi = "";
     private String last_status_ble = "";
     private long last_wifi_status_update_time_ms;
+    private long last_ble_status_update_time_ms;
 
     // Layout
     private TextView tv, tv2;
@@ -243,15 +244,25 @@ public class HomeFragment extends Fragment implements MeasurementListener{
 
     @Override
     public void ble_status(String status, int type) {
+        if (type == MeasurementListener.TYPE_SENSOR_STATUS) {
+            str_setting_ble = status;
+            flag_collect_ble_data = true;
+        } else if (type == MeasurementListener.TYPE_INIT_FAILED) {
+            str_setting_ble = status;
+            flag_collect_ble_data = false;
+        }
         if (type == MeasurementListener.TYPE_BLE_STATUS) {
             last_status_ble = status;
+            last_ble_status_update_time_ms = elapsedRealtime();
             update_display();
         }
+
     }
 
     public void update_display(){
         int elapsed_app_time_s = (int) (elapsedRealtime()/1e3 - measurement_start_time_ms/1e3);
         int time_since_last_wifi_status_s = (int) (elapsedRealtime()/1e3 - last_wifi_status_update_time_ms/1e3);
+        int time_since_last_ble_status_s = (int) (elapsedRealtime()/1e3 - last_ble_status_update_time_ms/1e3);
 
         String result_str = String.format("[Measurement] Elapsed time: %02d:%02d\n", elapsed_app_time_s / 60, elapsed_app_time_s % 60);
         if (time_since_last_wifi_status_s > 5)

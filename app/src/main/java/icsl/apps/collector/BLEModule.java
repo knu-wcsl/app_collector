@@ -28,10 +28,12 @@ public class BLEModule {
     private static final int TYPE_BEACON = 0X0002;
     private boolean flag_is_ble_running = false;
     private long measurement_start_time_ms;
+    private long last_scan_time_ms;
     private int count;
     private int count_iBeacon;
     private int count_Eddystone;
-    private String last_ble_value;
+    private String curr_ble_value = "";
+    private String last_ble_value = "";
     private Activity mActivity;
     private MeasurementListener mListener;
     private FileModule file;
@@ -64,10 +66,8 @@ public class BLEModule {
                         UUID uuid = get_iBeacon_uuid(arr_uuid);
                         int major_ID = Integer.parseInt(bytes_to_hex_string(arr_major_ID));
                         int minor_ID = Integer.parseInt(bytes_to_hex_string(arr_minor_ID));
-                        last_ble_value = String.format("BLE4, %f, iBeacon, %s, %d, %d, %d, %d, %s",elapsed_app_time_s, result.getDevice().getAddress()
+                        curr_ble_value = String.format("BLE4, %f, iBeacon, %s, %d, %d, %d, %d, %s",elapsed_app_time_s, result.getDevice().getAddress()
                                                         , result.getRssi(),scanRecord.getTxPowerLevel(),major_ID,minor_ID,uuid);
-                        Log.d(TAG,scanRecord.getDeviceName() + "");
-                        Log.d(TAG,result.getDevice().getName() + "");
                     }
 //                    if (scanRecord.getServiceUuids() != null) {
 //                        String uuids = "";
@@ -81,18 +81,16 @@ public class BLEModule {
 //                    }
                     String str_status = String.format("Count: %d\t\tiBeacon: %d",count, count_iBeacon);
                     mListener.ble_status(str_status, MeasurementListener.TYPE_BLE_STATUS);
-                    mListener.ble_status(last_ble_value + "\n", MeasurementListener.TYPE_BLE_VALUE);
-                    if (file != null) {
-                        file.save_str_to_file(last_ble_value + "\n");
+                    mListener.ble_status(curr_ble_value + "\n", MeasurementListener.TYPE_BLE_VALUE);
+                    if (file != null && !curr_ble_value.equals(last_ble_value)) {
+                        file.save_str_to_file(curr_ble_value + "\n");
+                        last_ble_value = curr_ble_value;
                     }
                 }
             }
             @Override
             public void onBatchScanResults(List<ScanResult> results) {
                 super.onBatchScanResults(results);
-                for (int i=0; i<results.size(); i++) {
-                    Log.d(TAG, results.get(i).toString());
-                }
             }
             @Override
             public void onScanFailed(int errorCode) {
