@@ -27,13 +27,13 @@ import java.util.UUID;
 public class BLEModule {
     private String TAG = "BLE_MODULE";
     private static final int APPLE = 0X004C;
-    private static final int TYPE_BEACON = 0X0002;
     private boolean flag_is_ble_running = false;
     private long measurement_start_time_ms;
     private long last_scan_time_ms;
     private int count;
     private int count_iBeacon;
     private int count_Eddystone;
+    private int count_other;
     private String curr_ble_value = "";
     private String last_ble_value = "";
     private Activity mActivity;
@@ -50,8 +50,6 @@ public class BLEModule {
         bluetoothManager = (BluetoothManager) mActivity.getApplicationContext().getSystemService(Context.BLUETOOTH_SERVICE);
         bluetoothAdapter = bluetoothManager.getAdapter();
         bleScanner = bluetoothAdapter.getBluetoothLeScanner();
-        beaconManager = new BeaconManager();
-        ArrayList<Beacon> beaconList = beaconManager.getBeaconList();
         scanCallback = new ScanCallback() {
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
@@ -62,8 +60,9 @@ public class BLEModule {
                 if (scanRecord != null) {
                     // check is iBeacon
                     byte[] manufacture_data_apple =  scanRecord.getManufacturerSpecificData(APPLE);
-                    if (manufacture_data_apple != null && manufacture_data_apple[0] == TYPE_BEACON) {
+                    if (manufacture_data_apple != null && manufacture_data_apple[0] == 0X0002) {
                         count_iBeacon++;
+                        String ble_type = Beacon.TYPE_IBEACON;
                         String mac_addr = result.getDevice().getAddress();
                         int rssi = result.getRssi();
                         int tx_power = scanRecord.getTxPowerLevel();
@@ -74,21 +73,19 @@ public class BLEModule {
                         UUID uuid = get_iBeacon_uuid(arr_uuid);
                         int major_ID = Integer.parseInt(bytes_to_hex_string(arr_major_ID));
                         int minor_ID = Integer.parseInt(bytes_to_hex_string(arr_minor_ID));
-                        curr_ble_value = String.format("BLE4, %f, iBeacon, %s, %d, %d, %d, %d, %s",elapsed_app_time_s, mac_addr
+                        curr_ble_value = String.format("BLE4, %f, %s, %s, %d, %d, %d, %d, %s",elapsed_app_time_s, ble_type, mac_addr
                                 , rssi, tx_power, major_ID, minor_ID, uuid);
-                        beaconList.add(new Beacon("iBeacon",mac_addr,rssi,major_ID,minor_ID,uuid));
+                        beaconManager.add_new_beacon(new Beacon(ble_type,mac_addr,rssi,major_ID,minor_ID,uuid));
+                    } else if (scanRecord.getServiceUuids() != null) {
+                        Log.d(TAG,scanRecord.getServiceUuids().toString());
+                    } else {
+                        count_other++;
+                        String ble_type = Beacon.TYPE_OTHER;
+                        String mac_addr = result.getDevice().getAddress();
+                        int rssi = result.getRssi();
+
                     }
-//                    if (scanRecord.getServiceUuids() != null) {
-//                        String uuids = "";
-//                        for (int i=0; i<scanRecord.getServiceUuids().size(); i++) {
-//                            uuids += scanRecord.getServiceUuids().get(i).toString() + " / ";
-//                        }
-//                        if (scanRecord.getServiceUuids().get(0).toString().equals("0000FEAA-0000–1000–8000–00805F9B34FB"))
-//                            count_Eddystone++;
-////                    Log.d(TAG,uuids);
-//                        uuids = scanRecord.getServiceUuids().get(0).toString();
-//                    }
-                    String str_status = String.format("Count: %d\t\tiBeacon: %d",count, count_iBeacon);
+                    String str_status = String.format("Count: %d\t\tiBeacon: %d\t\tother: %d",count, count_iBeacon,count_other);
                     mListener.ble_status(str_status, MeasurementListener.TYPE_BLE_STATUS);
                     mListener.ble_status(curr_ble_value + "\n", MeasurementListener.TYPE_BLE_VALUE);
                     if (file != null && !curr_ble_value.equals(last_ble_value)) {
@@ -96,6 +93,10 @@ public class BLEModule {
                         last_ble_value = curr_ble_value;
                     }
                 }
+//                Log.d(TAG,result.toString());
+//                else {
+//                    Log.d(TAG,"scanRecord is null!");
+//                }
             }
             @Override
             public void onBatchScanResults(List<ScanResult> results) {
@@ -118,7 +119,9 @@ public class BLEModule {
         count = 0;
         count_iBeacon = 0;
         count_Eddystone = 0;
+        count_other = 0;
         last_ble_value = "";
+        beaconManager = new BeaconManager();
         bleScanner.startScan(scanCallback);
         flag_is_ble_running = true;
         return true;
@@ -143,5 +146,9 @@ public class BLEModule {
                                 + str_uuid.substring(20);
         UUID uuid = UUID.fromString(str_iBeacon_uuid);
         return uuid;
+    }
+
+    public BeaconManager getBeaconManager() {
+        return beaconManager;
     }
 }

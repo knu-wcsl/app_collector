@@ -1,8 +1,13 @@
 package icsl.apps.collector;
 
+import androidx.annotation.Nullable;
+
 import java.util.UUID;
 
 public class Beacon {
+    public static final String TYPE_IBEACON = "iBeacon";
+    public static final String TYPE_EDDY = "eddystone";
+    public static final String TYPE_OTHER = "other";
     private String beacon_type;     // iBeacon, Eddystone, etc
     private String mac_addr;
     private int rssi;
@@ -41,5 +46,30 @@ public class Beacon {
 
     public UUID getUuid() {
         return uuid;
+    }
+
+    public void setRssi(int rssi) {
+        this.rssi = rssi;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        Beacon target = (Beacon) obj;
+        if (this.getMac_addr().equals(target.getMac_addr()))
+            return true;
+        else
+            return false;
+    }
+
+    @Override
+    public String toString() {
+        return "Beacon{" +
+                "beacon_type='" + beacon_type + '\'' +
+                ", mac_addr='" + mac_addr + '\'' +
+                ", rssi=" + rssi +
+                ", major_ID=" + major_ID +
+                ", minor_ID=" + minor_ID +
+                ", uuid=" + uuid +
+                '}';
     }
 }

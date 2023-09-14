@@ -6,14 +6,18 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import java.util.ArrayList;
 
 public class BLEFragment extends Fragment implements MeasurementListener{
     private String TAG = "BLE_FRAGMENT";
@@ -31,8 +35,10 @@ public class BLEFragment extends Fragment implements MeasurementListener{
     private TextView tv2;
     private Button btn;
     private Switch sw;
+    private ListView lv;
     // Ble module
     private BLEModule bleModule;
+    private BeaconManager beaconManager;
     private FileModule file;
     public BLEFragment() {
 
@@ -76,8 +82,9 @@ public class BLEFragment extends Fragment implements MeasurementListener{
                 }
             }
         });
-
         bleModule = new BLEModule(getActivity(), this);
+        lv = v.findViewById(R.id.lv_ble);
+
         return v;
     }
 
@@ -131,6 +138,9 @@ public class BLEFragment extends Fragment implements MeasurementListener{
         else if (type == MeasurementListener.TYPE_BLE_STATUS) {
             str_status = status;
             tv2.setText("[BLE measurement]\n" + str_status);
+            ArrayList<Beacon> beaconList = bleModule.getBeaconManager().getBeaconList();
+            ArrayAdapter<Beacon> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1,beaconList);
+            lv.setAdapter(adapter);
         }
         else if (type == MeasurementListener.TYPE_BLE_VALUE){
             str_value = status;
