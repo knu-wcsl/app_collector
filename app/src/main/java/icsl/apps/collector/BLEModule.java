@@ -13,12 +13,14 @@ import android.bluetooth.le.ScanRecord;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.os.Build;
+import android.os.ParcelUuid;
 import android.util.Log;
 import android.util.SparseArray;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -65,24 +67,37 @@ public class BLEModule {
                         String ble_type = Beacon.TYPE_IBEACON;
                         String mac_addr = result.getDevice().getAddress();
                         int rssi = result.getRssi();
-                        int tx_power = scanRecord.getTxPowerLevel();
+                        byte[] power = Arrays.copyOfRange(manufacture_data_apple,22,23);
+//                        int tx_power = scanRecord.getTxPowerLevel();
                         byte[] arr_uuid = Arrays.copyOfRange(manufacture_data_apple,2,18);
                         byte[] arr_major_ID = Arrays.copyOfRange(manufacture_data_apple,18,20);
                         byte[] arr_minor_ID = Arrays.copyOfRange(manufacture_data_apple,20,22);
+                        Log.d(TAG,power[0] + "");
+//                        Log.d(TAG,bytes_to_hex_string(power));
+                        Log.d(TAG,manufacture_data_apple.toString());
 
                         UUID uuid = get_iBeacon_uuid(arr_uuid);
-                        int major_ID = Integer.parseInt(bytes_to_hex_string(arr_major_ID));
-                        int minor_ID = Integer.parseInt(bytes_to_hex_string(arr_minor_ID));
-                        curr_ble_value = String.format("BLE4, %f, %s, %s, %d, %d, %d, %d, %s",elapsed_app_time_s, ble_type, mac_addr
+                        int major_ID = Integer.parseInt(bytes_to_hex_string(arr_major_ID),16);
+                        int minor_ID = Integer.parseInt(bytes_to_hex_string(arr_minor_ID), 16);
+                        int tx_power = Integer.parseInt(bytes_to_hex_string(power),16);
+                        curr_ble_value = String.format("BLE4, %f, %s, %s, %d, %d, %d, %d, %s", elapsed_app_time_s, ble_type, mac_addr
                                 , rssi, tx_power, major_ID, minor_ID, uuid);
                         beaconManager.add_new_beacon(new Beacon(ble_type,mac_addr,rssi,major_ID,minor_ID,uuid));
-                    } else if (scanRecord.getServiceUuids() != null) {
-                        Log.d(TAG,scanRecord.getServiceUuids().toString());
+//                    } else if (scanRecord.getServiceUuids() != null) {
+//                        List<ParcelUuid> uuidList  = scanRecord.getServiceUuids();
+//                        ParcelUuid uuid = uuidList.get(0);
+//                        UUID uuid2 = uuid.getUuid();
+//                        byte[] serviceData = scanRecord.getServiceData(uuidList.get(0));
+//                        Log.d(TAG,bytes_to_hex_string(serviceData));
                     } else {
                         count_other++;
                         String ble_type = Beacon.TYPE_OTHER;
                         String mac_addr = result.getDevice().getAddress();
                         int rssi = result.getRssi();
+                        int tx_power = scanRecord.getTxPowerLevel();
+                        String bytes = bytes_to_hex_string(scanRecord.getBytes());
+                        curr_ble_value = String.format("BLE4, %f, %s, %s, %d, %s", elapsed_app_time_s, ble_type, mac_addr
+                                                        , rssi, bytes);
 
                     }
                     String str_status = String.format("Count: %d\t\tiBeacon: %d\t\tother: %d",count, count_iBeacon,count_other);
