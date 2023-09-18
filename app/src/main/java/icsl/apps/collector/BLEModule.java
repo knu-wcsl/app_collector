@@ -2,6 +2,8 @@ package icsl.apps.collector;
 
 import static android.os.SystemClock.elapsedRealtime;
 
+import static androidx.core.app.ActivityCompat.startActivityForResult;
+
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothClass;
@@ -12,6 +14,7 @@ import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanRecord;
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.ParcelUuid;
 import android.util.Log;
@@ -29,6 +32,7 @@ import java.util.UUID;
 public class BLEModule {
     private String TAG = "BLE_MODULE";
     private static final int APPLE = 0X004C;
+    public static final int REQUEST_ENABLE_BT = 10;
     private boolean flag_is_ble_running = false;
     private long measurement_start_time_ms;
     private long last_scan_time_ms;
@@ -43,6 +47,8 @@ public class BLEModule {
     private FileModule file;
     private BluetoothManager bluetoothManager;
     private BluetoothAdapter bluetoothAdapter;
+    private ScanResult curr_ble_result;
+    private ScanResult prev_ble_result;
     private BluetoothLeScanner bleScanner;
     private BeaconManager beaconManager;
     private ScanCallback scanCallback;
@@ -55,6 +61,7 @@ public class BLEModule {
         scanCallback = new ScanCallback() {
             @Override
             public void onScanResult(int callbackType, ScanResult result) {
+//                if (curr_ble_result != prev_ble_result)
                 count++;
                 super.onScanResult(callbackType, result);
                 float elapsed_app_time_s = (float) (elapsedRealtime() / 1e3 - measurement_start_time_ms / 1e3);
@@ -67,22 +74,20 @@ public class BLEModule {
                         String ble_type = Beacon.TYPE_IBEACON;
                         String mac_addr = result.getDevice().getAddress();
                         int rssi = result.getRssi();
-                        byte[] power = Arrays.copyOfRange(manufacture_data_apple,22,23);
-//                        int tx_power = scanRecord.getTxPowerLevel();
+                        int tx_power = scanRecord.getTxPowerLevel();
+                        byte[] arr_rssi_1m = Arrays.copyOfRange(manufacture_data_apple,22,23);
                         byte[] arr_uuid = Arrays.copyOfRange(manufacture_data_apple,2,18);
                         byte[] arr_major_ID = Arrays.copyOfRange(manufacture_data_apple,18,20);
                         byte[] arr_minor_ID = Arrays.copyOfRange(manufacture_data_apple,20,22);
-                        Log.d(TAG,power[0] + "");
-//                        Log.d(TAG,bytes_to_hex_string(power));
-                        Log.d(TAG,manufacture_data_apple.toString());
 
                         UUID uuid = get_iBeacon_uuid(arr_uuid);
                         int major_ID = Integer.parseInt(bytes_to_hex_string(arr_major_ID),16);
                         int minor_ID = Integer.parseInt(bytes_to_hex_string(arr_minor_ID), 16);
-                        int tx_power = Integer.parseInt(bytes_to_hex_string(power),16);
-                        curr_ble_value = String.format("BLE4, %f, %s, %s, %d, %d, %d, %d, %s", elapsed_app_time_s, ble_type, mac_addr
-                                , rssi, tx_power, major_ID, minor_ID, uuid);
+                        int rssi_1m = arr_rssi_1m[0];
+                        curr_ble_value = String.format("BLE4, %f, %s, %s, %d, %d, %d, %d, %d, %s", elapsed_app_time_s, ble_type, mac_addr
+                                , rssi, rssi_1m, tx_power, major_ID, minor_ID, uuid);
                         beaconManager.add_new_beacon(new Beacon(ble_type,mac_addr,rssi,major_ID,minor_ID,uuid));
+                        Log.d(TAG,curr_ble_value);
 //                    } else if (scanRecord.getServiceUuids() != null) {
 //                        List<ParcelUuid> uuidList  = scanRecord.getServiceUuids();
 //                        ParcelUuid uuid = uuidList.get(0);
@@ -96,8 +101,8 @@ public class BLEModule {
                         int rssi = result.getRssi();
                         int tx_power = scanRecord.getTxPowerLevel();
                         String bytes = bytes_to_hex_string(scanRecord.getBytes());
-                        curr_ble_value = String.format("BLE4, %f, %s, %s, %d, %s", elapsed_app_time_s, ble_type, mac_addr
-                                                        , rssi, bytes);
+                        curr_ble_value = String.format("BLE4, %f, %s, %s, %d, %d, %s", elapsed_app_time_s, ble_type, mac_addr
+                                                        , rssi, tx_power, bytes);
 
                     }
                     String str_status = String.format("Count: %d\t\tiBeacon: %d\t\tother: %d",count, count_iBeacon,count_other);
@@ -108,10 +113,6 @@ public class BLEModule {
                         last_ble_value = curr_ble_value;
                     }
                 }
-//                Log.d(TAG,result.toString());
-//                else {
-//                    Log.d(TAG,"scanRecord is null!");
-//                }
             }
             @Override
             public void onBatchScanResults(List<ScanResult> results) {

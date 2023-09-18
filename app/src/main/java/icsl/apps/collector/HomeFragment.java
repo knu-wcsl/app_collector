@@ -244,7 +244,7 @@ public class HomeFragment extends Fragment implements MeasurementListener{
 
     @Override
     public void ble_status(String status, int type) {
-        if (type == MeasurementListener.TYPE_SENSOR_STATUS) {
+        if (type == MeasurementListener.TYPE_INIT_SUCCESS) {
             str_setting_ble = status;
             flag_collect_ble_data = true;
         } else if (type == MeasurementListener.TYPE_INIT_FAILED) {
